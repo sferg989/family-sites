@@ -130,7 +130,7 @@ export class CookieHandler implements ICookieHandler {
     try {
       const encodedValue = token.split('.')[1];
       return JSON.parse(window.atob(encodedValue));
-    } catch (e) {
+    } catch {
       return null;
     }
   };

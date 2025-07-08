@@ -30,7 +30,7 @@ const getImageAspectRatio = async (url: string): Promise<number> => {
     }
     return 16/9; // Default aspect ratio if dimensions can't be determined
   } catch (error) {
-    console.error('Error getting image aspect ratio:', error);
+    // Error getting image aspect ratio, using default
     return 16/9; // Default to landscape if there's an error
   }
 };

@@ -57,8 +57,8 @@ export async function optimizeImages(html: string): Promise<string> {
         const template = document.createElement('template');
         template.innerHTML = pictureHtml.trim();
         img.parentNode?.replaceChild(template.content.firstChild!, img);
-      } catch (error) {
-        console.error(`Failed to optimize image: ${src}`, error);
+      } catch {
+        // Failed to optimize image, keeping original
         // Keep the original image if optimization fails
         continue;
       }

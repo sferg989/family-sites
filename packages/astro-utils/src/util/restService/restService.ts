@@ -1,6 +1,12 @@
 import { type ResponseOf, Methods } from './restTypes';
 
-type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+interface RequestInit {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
+type Fetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
 
 export const defaultHeaders: Record<string, string> = {
   'Content-Type': 'application/json',
