@@ -1,0 +1,382 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+
+:root {
+	/* Space theme colors */
+	--primary-blue: #4A90E2;
+	--primary-dark: #030711;  /* Darker background */
+	--accent-blue: #00D1FF;
+	--accent-star: #FFD700;
+	--accent-purple: #9D4EDD;  /* New cosmic purple */
+	--accent-nova: #FF3D00;   /* New nova color */
+	
+	/* Supporting colors */
+	--dark-blue: #1E3A8A;
+	--space-gray: #2A2D3A;
+	--text-primary: #FFFFFF;
+	--text-secondary: #B8B8B8;
+	
+	/* Layout */
+	--header-height: 80px;
+	--content-width: min(1200px, 100% - 2rem);
+	--border-radius: 12px;
+	
+	/* Animations */
+	--bounce-timing: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/poppins-regular.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/poppins-bold.woff2') format('woff2');
+	font-weight: 700;
+	font-display: swap;
+}
+body {
+	font-family: 'Poppins', sans-serif;
+	margin: 0;
+	padding: 0;
+	background: var(--primary-dark);
+	color: var(--text-primary);
+	line-height: 1.6;
+	font-size: 16px;
+	position: relative;
+	overflow-x: hidden;
+}
+
+/* Enhanced star background */
+body::before {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: 
+		radial-gradient(3px 3px at 15% 15%, var(--accent-star) 0%, transparent 100%),
+		radial-gradient(4px 4px at 35% 45%, var(--accent-purple) 0%, transparent 100%),
+		radial-gradient(2px 2px at 55% 25%, var(--accent-star) 0%, transparent 100%),
+		radial-gradient(4px 4px at 75% 65%, var(--accent-nova) 0%, transparent 100%),
+		radial-gradient(3px 3px at 85% 35%, var(--accent-star) 0%, transparent 100%),
+		radial-gradient(2px 2px at 25% 85%, var(--accent-purple) 0%, transparent 100%),
+		radial-gradient(4px 4px at 65% 75%, var(--accent-nova) 0%, transparent 100%),
+		linear-gradient(
+			125deg,
+			rgba(3, 7, 17, 0.99) 0%,
+			rgba(30, 58, 138, 0.95) 100%
+		);
+	background-repeat: repeat;
+	background-size: 350px 350px, 275px 275px, 225px 225px, 300px 300px, 
+					250px 250px, 325px 325px, 275px 275px, 100% 100%;
+	animation: starFloat 150s linear infinite;
+	z-index: -1;
+}
+
+/* Multiple shooting stars */
+body::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: 
+		linear-gradient(45deg, var(--accent-star) 0%, transparent 15%, transparent 100%),
+		linear-gradient(135deg, var(--accent-purple) 0%, transparent 15%, transparent 100%),
+		linear-gradient(225deg, var(--accent-nova) 0%, transparent 15%, transparent 100%),
+		linear-gradient(315deg, var(--accent-star) 0%, transparent 15%, transparent 100%);
+	background-size: 400px 400px;
+	background-repeat: no-repeat;
+	background-position: 
+		calc(50% + 300px) calc(50% - 300px),
+		calc(50% - 300px) calc(50% + 300px),
+		calc(50% + 100px) calc(50% + 200px),
+		calc(50% - 200px) calc(50% - 100px);
+	opacity: 0;
+	animation: multipleShootingStars 8s linear infinite;
+	z-index: -1;
+}
+
+main {
+	max-width: var(--content-width);
+	margin: 2rem auto;
+	padding: 2rem;
+	background: rgba(3, 7, 17, 0.8);
+	border-radius: var(--border-radius);
+	box-shadow: 
+		0 8px 32px rgba(0, 0, 0, 0.5),
+		0 0 20px rgba(0, 209, 255, 0.2),
+		0 0 40px rgba(157, 78, 221, 0.2);
+	backdrop-filter: blur(8px);
+	position: relative;
+	overflow: hidden;
+	border: 1px solid rgba(0, 209, 255, 0.2);
+}
+
+/* Enhanced space nebula effect */
+main::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: 
+		radial-gradient(
+			ellipse at center,
+			rgba(0, 209, 255, 0.15) 0%,
+			transparent 60%
+		),
+		radial-gradient(
+			ellipse at center,
+			rgba(157, 78, 221, 0.15) 30%,
+			transparent 70%
+		),
+		radial-gradient(
+			circle at center,
+			var(--accent-star) 2px,
+			transparent 2px
+		) 0 0 / 100px 100px;
+	opacity: 0.3;
+	z-index: -1;
+	animation: nebulaPulse 8s ease-in-out infinite;
+	filter: blur(3px);
+}
+
+/* Enhanced animations */
+@keyframes starFloat {
+	from {
+		background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+	}
+	to {
+		background-position: 350px 350px, -275px 275px, 225px -225px, 
+							-300px 300px, 250px -250px, -325px 325px, 
+							275px -275px, 0 0;
+	}
+}
+
+@keyframes multipleShootingStars {
+	0%, 100% {
+		opacity: 0;
+		transform: scale(1);
+	}
+	15% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+	30%, 70% {
+		opacity: 0;
+		transform: scale(1);
+	}
+	85% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+}
+
+@keyframes nebulaPulse {
+	0%, 100% {
+		opacity: 0.3;
+		transform: scale(1) rotate(0deg);
+	}
+	50% {
+		opacity: 0.4;
+		transform: scale(1.2) rotate(5deg);
+	}
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+	color: var(--accent-blue);
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 1.5rem 0 1rem;
+}
+
+h1 {
+	font-size: 3.5rem;
+	background: linear-gradient(45deg, var(--primary-blue), var(--accent-blue));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+}
+
+/* Links */
+a {
+	color: var(--accent-blue);
+	text-decoration: none;
+	transition: all 0.3s var(--bounce-timing);
+	position: relative;
+}
+
+a:hover {
+	color: var(--primary-blue);
+	text-shadow: 0 0 8px var(--accent-blue);
+}
+
+/* Images */
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--border-radius);
+	transition: transform 0.3s var(--bounce-timing);
+}
+
+img:hover {
+	transform: scale(1.02);
+}
+
+/* Custom elements for interests */
+.music-note {
+	display: inline-block;
+	animation: bounce 2s var(--bounce-timing) infinite;
+}
+
+.soccer-ball {
+	display: inline-block;
+	animation: spin 3s linear infinite;
+}
+
+/* Animations */
+@keyframes bounce {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	body {
+		font-size: 14px;
+		overflow-x: hidden;
+	}
+
+	main {
+		padding: 0.5rem;
+		margin: 0.5rem;
+		width: calc(100% - 1rem);
+		max-width: 100%;
+	}
+
+	h1 {
+		font-size: 2rem;
+		word-wrap: break-word;
+	}
+
+	.card {
+		padding: 1rem;
+	}
+
+	pre {
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+}
+
+/* Utility classes */
+.text-gradient {
+	background: linear-gradient(45deg, var(--primary-blue), var(--primary-orange));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Update card styles */
+.card {
+	background: rgba(42, 45, 58, 0.9);
+	padding: 1.5rem;
+	border-radius: var(--border-radius);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(74, 144, 226, 0.2);
+	backdrop-filter: blur(8px);
+	transition: transform 0.3s var(--bounce-timing);
+}
+
+.card:hover {
+	transform: translateY(-5px) scale(1.02);
+	box-shadow: 
+		0 8px 24px rgba(0, 209, 255, 0.3),
+		0 0 40px rgba(157, 78, 221, 0.2);
+	border-color: rgba(0, 209, 255, 0.4);
+}
+
+/* Button styles */
+button {
+	background: var(--primary-blue);
+	color: white;
+	border: none;
+	padding: 0.8rem 1.5rem;
+	border-radius: var(--border-radius);
+	font-weight: bold;
+	cursor: pointer;
+	transition: all 0.3s var(--bounce-timing);
+	box-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
+}
+
+button:hover {
+	background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+	transform: scale(1.05);
+	box-shadow: 
+		0 0 20px rgba(0, 209, 255, 0.5),
+		0 0 40px rgba(157, 78, 221, 0.3);
+}
+
+/* Code blocks */
+code {
+	background: var(--space-gray);
+	padding: 0.2em 0.4em;
+	border-radius: 4px;
+	font-size: 0.9em;
+	color: var(--accent-blue);
+}
+
+pre {
+	background: var(--space-gray);
+	padding: 1rem;
+	border-radius: var(--border-radius);
+	overflow-wrap: break-word;
+	border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+/* Tables */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1rem 0;
+	background: rgba(42, 45, 58, 0.8);
+}
+
+th, td {
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--primary-blue);
+}
+
+th {
+	background: var(--dark-blue);
+	color: white;
+}

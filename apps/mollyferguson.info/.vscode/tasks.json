@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "export NVM_DIR=\"$HOME/.nvm\" && source \"$NVM_DIR/nvm.sh\" && nvm use && npm run lint && npm run astro:check && npm run build",
+			"problemMatcher": [],
+			"label": "npm: lint and astro:check",
+      "detail": "Runs lint and then astro:check"
+		}
+	]
+}

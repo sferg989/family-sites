@@ -1,0 +1,165 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Page } from '@sferg989/astro-utils';
+
+type Props = Page & {
+  structuredData?: Record<string, any>;
+  canonicalURL?: URL;
+};
+
+const {
+  title,
+  publishedAt,
+  updatedAt,
+  heroImage,
+  metaDescription,
+  keywords
+} = Astro.props;
+
+const publishedDate = publishedAt ? new Date(publishedAt) : null;
+const updatedDate = updatedAt ? new Date(updatedAt) : null;
+---
+
+<html lang="en">
+  <head>
+    <BaseHead
+      title={title}
+      description={metaDescription || title}
+      image={heroImage?.url}
+      keywords={keywords}
+    />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <Header />
+
+    <main>
+      <article itemscope itemtype="https://schema.org/Article">
+        {heroImage && (
+          <header class="hero-section">
+            <div class="hero-content">
+              {heroImage.mimeType === 'video/mp4' ? (
+                <video
+                  controls
+                  class="media-content"
+                >
+                  <source src={heroImage.url} type="video/mp4" />
+                  Your browser does not support video playback.
+                </video>
+              ) : (
+                <img
+                  src={heroImage.url}
+                  alt={`Featured image for ${title}`}
+                  class="media-content"
+                  itemprop="image"
+                />
+              )}
+            </div>
+          </header>
+        )}
+
+        <div class="content-container">
+          <header class="title-section">
+            <h1 itemprop="headline">{title}</h1>
+            <hr />
+          </header>
+
+          <div itemprop="articleBody">
+            <slot />
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <Footer
+      publishedDate={publishedDate}
+      updatedDate={updatedDate}
+    />
+  </body>
+</html>
+
+<style>
+  main {
+    width: var(--content-width);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 2rem;
+    overflow: hidden; /* Add this to contain rotated elements */
+  }
+
+  .hero-section {
+    transform: rotate(-1deg);
+    margin: 3rem -2rem; /* Remove negative margins */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 2rem; /* Add padding instead of negative margins */
+  }
+
+  .hero-content {
+    transform: rotate(1deg);
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+  }
+
+  .media-content {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.1),
+      0 0 0 10px var(--accent-color);
+    transition: transform 0.3s;
+    margin: 0 auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .media-content:hover {
+    transform: scale(1.02);
+  }
+
+  .content-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .title-section {
+    position: relative;
+    padding: 2rem;
+    margin: 2rem 0;
+    background: linear-gradient(104deg,
+      var(--stripe-color-1) 0%,
+      var(--stripe-color-2) 100%
+    );
+    border-radius: 15px;
+    color: white;
+  }
+
+  .title-section h1 {
+    font-size: 3rem;
+    margin: 0;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+    -webkit-text-fill-color: white;
+  }
+
+  hr {
+    border: none;
+    height: 4px;
+    background: var(--accent-color);
+    margin: 1rem 0;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .title-section h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageContent from '@components/PageContent.astro';
+import { PageService } from '@sferg989/astro-utils';
+import type { Page } from '@sferg989/astro-utils';
+import { optimizeImages } from '@sferg989/astro-utils';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+  const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+  PageService.initialize(endpoint);
+  const { pages } = await PageService.getAllPages();
+  return pages.map((page: Page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+const { page: fullPage } = await PageService.getPageBySlug(page.slug);
+
+if (fullPage?.body?.html) {
+  fullPage.body.html = await optimizeImages(fullPage.body.html);
+}
+
+// Set up SEO data
+const pageTitle = fullPage?.title ? `${fullPage.title} | ${SITE_TITLE}` : SITE_TITLE;
+const canonicalURL = new URL(`/page/${fullPage?.slug}`, 'https://mollyferguson.info');
+
+// Create structured data for SEO
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: fullPage?.metaDescription,
+  url: canonicalURL.toString(),
+  datePublished: fullPage?.publishedAt,
+  dateModified: fullPage?.updatedAt,
+  image: fullPage?.heroImage?.url,
+};
+
+// Prepare metadata for Layout
+const enhancedPage = {
+  ...fullPage,
+  structuredData,
+  canonicalURL
+};
+---
+
+<Layout {...enhancedPage}>
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} slot="head" />
+  <link rel="canonical" href={canonicalURL} slot="head" />
+  <PageContent page={fullPage} />
+</Layout>

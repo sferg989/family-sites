@@ -1,0 +1,55 @@
+---
+/* eslint-disable max-len */
+import FormattedDate from './FormattedDate.astro';
+import SocialLinks from './SocialLinks.astro';
+
+interface Props {
+  publishedDate?: Date | null
+  updatedDate?: Date | null
+}
+
+const { publishedDate, updatedDate } = Astro.props;
+const today = new Date();
+---
+
+<footer>
+  <p>&copy; {today.getFullYear()} Molly Ferguson. All rights reserved.</p>
+  <SocialLinks />
+  <div class='date'>
+    {
+      publishedDate && (
+        <p>
+          Published on <FormattedDate date={publishedDate} />
+        </p>
+      )
+    }
+    {
+      updatedDate && (
+        <p class='last-updated-on'>
+          Last updated on <FormattedDate date={updatedDate} />
+        </p>
+      )
+    }
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    margin-top: 4rem;
+    transform: rotate(-1deg);
+    border-top: 4px solid var(--accent-color);
+    text-align: center;
+  }
+
+  .date {
+    margin-top: 1em;
+    color: rgb(var(--gray));
+  }
+
+  .last-updated-on {
+    font-style: italic;
+  }
+</style>

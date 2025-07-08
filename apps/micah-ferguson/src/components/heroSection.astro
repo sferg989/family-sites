@@ -1,0 +1,172 @@
+---
+import Picture from './Picture.astro';
+import sharp from 'sharp';
+
+interface Props {
+  heroImage: {
+    url: string;
+    mimeType: string;
+  };
+  title: string;
+}
+
+const { heroImage, title } = Astro.props;
+
+const isVideoType = (mimeType: string) => {
+  const videoTypes = ['video/mp4', 'video/quicktime', 'video/mov'];
+  return videoTypes.includes(mimeType);
+};
+
+// Function to detect image aspect ratio
+const getImageAspectRatio = async (url: string): Promise<number> => {
+  try {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const metadata = await sharp(buffer).metadata();
+
+    if (metadata.width && metadata.height) {
+      return metadata.width / metadata.height;
+    }
+    return 16/9; // Default aspect ratio if dimensions can't be determined
+  } catch (error) {
+    console.error('Error getting image aspect ratio:', error);
+    return 16/9; // Default to landscape if there's an error
+  }
+};
+
+const aspectRatio = await getImageAspectRatio(heroImage.url);
+const isPortrait = aspectRatio < 1;
+---
+
+{heroImage && (
+  <header class:list={['hero-section', { 'portrait': isPortrait }]}>
+    <div class="hero-content">
+      {isVideoType(heroImage.mimeType) ? (
+        <div class="video-container">
+          <video
+            controls
+            class="media-content"
+            preload="metadata"
+            poster={`${heroImage.url}?fm=jpg&fit=thumb&w=1200&h=675`}
+          >
+            <source src={heroImage.url} type="video/mp4" />
+            Your browser does not support video playback.
+          </video>
+        </div>
+      ) : (
+        <div class:list={['image-content', { 'portrait': isPortrait }]}>
+          <Picture
+            src={heroImage.url}
+            alt={title}
+            priority={true}
+            aspectRatio={aspectRatio}
+            objectFit="contain"
+          />
+        </div>
+      )}
+    </div>
+  </header>
+)}
+
+<style>
+  .hero-section {
+    transform: rotate(-1deg);
+    margin: 3rem -2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 2rem;
+    contain: layout paint;
+    content-visibility: auto;
+  }
+
+  .hero-section.portrait {
+    margin: 2rem auto;
+    max-width: 80vh;
+    padding: 0;
+  }
+
+  .hero-content {
+    transform: rotate(1deg);
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .video-container .media-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.1),
+      0 0 0 10px var(--accent-color);
+  }
+
+  .image-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.1),
+      0 0 0 10px var(--accent-color);
+    will-change: transform;
+    transition: transform 0.3s;
+  }
+
+  .image-content.portrait {
+    max-width: 80vh;
+  }
+
+  .image-content :global(.image-container) {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      margin: 2rem -1rem;
+      padding: 0 1rem;
+    }
+
+    .hero-section.portrait {
+      margin: 1rem auto;
+      padding: 0;
+      max-width: 90vw;
+    }
+
+    .video-container .media-content,
+    .image-content,
+    .image-content :global(.image-container) {
+      border-radius: 10px;
+    }
+
+    .video-container .media-content,
+    .image-content {
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.1),
+        0 0 0 5px var(--accent-color);
+    }
+
+    .image-content.portrait {
+      max-width: 90vw;
+    }
+  }
+
+  .media-content:hover,
+  .image-content:hover {
+    transform: scale(1.02);
+  }
+</style>

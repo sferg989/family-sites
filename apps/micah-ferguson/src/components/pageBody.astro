@@ -1,0 +1,101 @@
+---
+import type { Page, DigitalAsset } from '@sferg989/astro-utils';
+import VideoGrid from './VideoGrid.astro';
+
+interface Props {
+  content: Page['body'];
+  highlights?: DigitalAsset[];
+}
+
+const { content, highlights = [] } = Astro.props;
+---
+
+<article class="page-body">
+  {
+    content?.html ? (
+      <div set:html={content.html} class="content-wrapper" />
+    ) : (
+      <p class="content-wrapper">No content available.</p>
+    )
+  }
+
+  {highlights.length > 0 && (
+    <section class="highlights">
+      <h2>Highlights</h2>
+      <VideoGrid videos={highlights} />
+    </section>
+  )}
+
+  <nav class="back-link">
+    <a href="/" class="back-button">
+      &larr; Back to homepage
+    </a>
+  </nav>
+</article>
+
+<style>
+  .page-body {
+    margin: 2rem 0;
+  }
+
+  .content-wrapper {
+    max-width: var(--content-width);
+    margin: 0 auto;
+  }
+
+  .content-wrapper :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin: 1.5rem 0;
+  }
+
+  .content-wrapper :global(h2) {
+    color: var(--primary-blue);
+    margin-top: 2rem;
+  }
+
+  .content-wrapper :global(p) {
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  .content-wrapper :global(a) {
+    color: var(--primary-orange);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .content-wrapper :global(a:hover) {
+    color: var(--accent-orange);
+  }
+
+  .highlights {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--accent-color);
+  }
+
+  .highlights h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-blue);
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .back-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .back-button:hover {
+    color: var(--primary-orange);
+  }
+</style>

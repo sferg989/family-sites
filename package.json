@@ -1,0 +1,33 @@
+{
+  "name": "family-sites-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/mollyferguson.info",
+    "dev:molly": "npm run dev --workspace=apps/mollyferguson.info",
+    "dev:micah": "npm run dev --workspace=apps/micah-ferguson",
+    "build": "npm run build --workspaces --if-present",
+    "build:molly": "npm run build --workspace=apps/mollyferguson.info",
+    "build:micah": "npm run build --workspace=apps/micah-ferguson",
+    "build:utils": "npm run build --workspace=packages/astro-utils",
+    "lint": "npm run lint --workspaces --if-present",
+    "astro:check": "npm run astro:check --workspaces --if-present",
+    "publish:utils": "npm run publish --workspace=packages/astro-utils"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "@typescript-eslint/parser": "^8.2.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-astro": "^1.2.3",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22.15.0"
+  }
+} 

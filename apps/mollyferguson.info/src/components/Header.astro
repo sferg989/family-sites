@@ -1,0 +1,78 @@
+---
+/* eslint-disable max-len */
+import HeaderLink from './HeaderLink.astro';
+import SocialLinks from './SocialLinks.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<header>
+  <nav>
+    <h2><a href="/" class="site-title">{SITE_TITLE}</a></h2>
+    <div class="internal-links">
+      <HeaderLink href="/">Home</HeaderLink>
+      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/about">About</HeaderLink>
+    </div>
+    <SocialLinks />
+  </nav>
+</header>
+<style>
+  header {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 4px solid var(--accent-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1rem;
+    transform: rotate(-1deg);
+    margin-bottom: 2rem;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--content-width, 1200px);
+    margin: 0 auto;
+    transform: rotate(1deg);
+  }
+
+  .site-title {
+    font-size: 2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--text-color);
+    text-shadow: 2px 2px 0 var(--accent-color);
+    transition: transform 0.2s;
+  }
+
+  .site-title:hover {
+    transform: scale(1.05);
+  }
+
+  .internal-links a {
+    position: relative;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold;
+    transition: transform 0.2s;
+  }
+
+  .internal-links a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-color);
+    transform: skew(-15deg);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .internal-links a:hover::before {
+    opacity: 1;
+  }
+</style>

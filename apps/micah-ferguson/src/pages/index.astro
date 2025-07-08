@@ -1,0 +1,35 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageMeta from '@components/pageMeta.astro';
+import PageBody from '@components/pageBody.astro';
+import PageNavigation from '@components/pageNavigation.astro';
+import PageHero from '@components/pageHero.astro';
+import { PageService } from '../services/pageService';
+import { SITE_DESCRIPTION } from '../consts';
+
+const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+PageService.initialize(endpoint);
+
+const [{ page }, { pages }] = await Promise.all([
+  PageService.getHomePage(),
+  PageService.getNavigationPages()
+]);
+---
+
+<Layout
+  title={page.title}
+  description={page.metaDescription || SITE_DESCRIPTION}
+  heroImage={page.heroImage}
+  publishedAt={page.publishedAt}
+  updatedAt={page.updatedAt}
+>
+  <PageMeta
+    title={page.title}
+    description={page.metaDescription || SITE_DESCRIPTION}
+    image={page.heroImage?.url}
+    keywords={page.keywords}
+  />
+  <PageHero title={page.title} heroImage={page.heroImage} />
+  <PageBody content={page.body} highlights={page.highlights} />
+  <PageNavigation pages={pages} />
+</Layout>

@@ -1,0 +1,136 @@
+---
+
+import type { Page } from '@sferg989/astro-utils';
+import Picture from './Picture.astro';
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+---
+
+<div class="page-content">
+  <div class="content-wrapper">
+    {page.body && (
+      <div
+        set:html={page.body.html}
+        class="prose prose-lg max-w-none mb-8"
+      />
+    )}
+
+    {page.highlights?.length > 0 && (
+      <section class="highlights mt-12" aria-labelledby="highlights-heading">
+        <h2 id="highlights-heading" class="text-2xl font-bold mb-4">Highlights</h2>
+
+        <div class="media-grid">
+          {page.highlights.map((item, index) => (
+            <div class="media-grid-item">
+              {item.mimeType.startsWith('video/') ? (
+                <div class="video-container">
+                  <video controls>
+                    <source src={item.url} type={item.mimeType} />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ) : (
+                <div class="image-container">
+                  <Picture
+                    src={item.url}
+                    alt={`Highlight image ${index + 1} for ${page.title}`}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <nav class="mt-8 text-center" aria-label="Back to homepage">
+      <a href="/" class="inline-block py-2 px-4 text-primary hover:underline">
+        &larr; Back to homepage
+      </a>
+    </nav>
+  </div>
+</div>
+
+<style>
+  .content-wrapper {
+    width: var(--content-width);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .prose :global(img) {
+    border-radius: 0.5rem;
+    margin: 2rem auto;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .prose :global(h2) {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .prose :global(p) {
+    margin: 1rem 0;
+    line-height: 1.75;
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .media-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .media-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .media-grid-item {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-container video {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    object-fit: cover;
+  }
+
+  .image-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .image-container :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+  }
+</style>

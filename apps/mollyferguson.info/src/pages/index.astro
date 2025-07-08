@@ -1,0 +1,127 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { GraphQLClient } from '@sferg989/astro-utils';
+import type { Page, Pages } from '@sferg989/astro-utils';
+import { optimizeImages } from '@sferg989/astro-utils';
+import Picture from '../components/Picture.astro';
+const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+const client = GraphQLClient.Instance(endpoint);
+
+// Fetch the homepage data
+const { page }: { page: Page } = await client.request(`
+  query HomePage {
+    page(where: { slug: "homepage" }) {
+      title
+      slug
+      publishedAt
+      updatedAt
+      heroImage {
+        id
+        url
+        mimeType
+      }
+      body {
+        html
+      }
+      metaDescription
+      keywords
+    }
+  }
+`);
+
+if (page && page.body && page.body.html) {
+  page.body.html = await optimizeImages(page.body.html);
+}
+
+// Fetch all pages for navigation, excluding the homepage
+const { pages }: Pages = await client.request(`
+  query AllPages {
+    pages(where: { slug_not: "homepage" }) {
+      title
+      slug
+    }
+  }
+`);
+
+const pageTitle = page ? `${page.title} | ${SITE_TITLE}` : SITE_TITLE;
+const pageDescription = page?.metaDescription || SITE_DESCRIPTION;
+const canonicalURL = new URL(Astro.url.pathname, 'https://mollyferguson.info');
+
+// Create structured data for SEO
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: pageDescription,
+  url: canonicalURL.toString(),
+  datePublished: page?.publishedAt,
+  dateModified: page?.updatedAt,
+  image: page?.heroImage?.url,
+};
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <BaseHead
+      title={pageTitle}
+      description={pageDescription}
+      image={page?.heroImage?.url}
+      keywords={page?.keywords}
+    />
+    <link rel='canonical' href={canonicalURL} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      {
+        page ? (
+          <article itemscope itemtype="https://schema.org/Article">
+            {page.heroImage && (
+              <div class='hero-image'>
+                {page.heroImage.mimeType === 'video/mp4' ? (
+                  <video controls>
+                    <source src={page.heroImage.url} type='video/mp4' />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <Picture
+                    src={page.heroImage.url}
+                    alt={`Featured image for ${page.title}`}
+                  />
+                )}
+              </div>
+            )}
+            <div itemprop="articleBody">
+              {page.body.html && (
+                <div set:html={page.body.html} />
+              )}
+            </div>
+          </article>
+        ) : (
+          <p>Homepage content not found.</p>
+        )
+      }
+
+      {
+        pages.length > 0 && (
+          <nav aria-label='Other pages'>
+            <h2>Other Pages</h2>
+            <ul>
+              {pages.map((page) => (
+                <li>
+                  <a href={`/page/${page.slug}`}>{page.title}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </main>
+    <Footer />
+  </body>
+</html>

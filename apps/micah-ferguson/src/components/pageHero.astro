@@ -1,0 +1,78 @@
+---
+import HeroSection from './heroSection.astro';
+
+interface Props {
+  title: string;
+  heroImage?: {
+    url: string;
+    mimeType: string;
+  };
+}
+
+const { title, heroImage } = Astro.props;
+---
+<div class="hero-container">
+  {heroImage && <HeroSection heroImage={heroImage} title={title} />}
+
+  <div class="content-container">
+    <header class="title-section">
+      <h1>{title}</h1>
+      <hr />
+    </header>
+  </div>
+</div>
+
+<style>
+  .hero-container {
+    margin-bottom: 2rem;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .content-container {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .title-section {
+    position: relative;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    background: linear-gradient(104deg,
+      var(--stripe-color-1) 0%,
+      var(--stripe-color-2) 100%
+    );
+    border-radius: 15px;
+    color: white;
+    width: calc(100% - 3rem);
+  }
+
+  .title-section h1 {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+    margin: 0;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+    -webkit-text-fill-color: white;
+    word-wrap: break-word;
+  }
+
+  hr {
+    border: none;
+    height: 4px;
+    background: var(--accent-color);
+    margin: 1rem 0;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .content-container {
+      padding: 0.5rem;
+    }
+
+    .title-section {
+      padding: 1rem;
+      margin: 0.5rem 0;
+    }
+  }
+</style>

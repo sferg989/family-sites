@@ -1,0 +1,209 @@
+---
+import type { Page } from '@sferg989/astro-utils';
+
+interface Props {
+  pages: Array<Pick<Page, 'title' | 'slug'>>;
+}
+
+const { pages } = Astro.props;
+---
+
+{
+  pages.length > 0 && (
+    <nav aria-label="Other pages" class="page-navigation">
+      <div class="cosmic-background">
+        <div class="stars"></div>
+        <div class="nebula"></div>
+      </div>
+      <h2>Other Pages</h2>
+      <ul>
+        {pages.map((page) => (
+          <li>
+            <a href={`/${page.slug}`}>
+              <span class="link-content">{page.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .page-navigation {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: rgba(3, 7, 17, 0.8);
+    border-radius: var(--border-radius);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 209, 255, 0.3);
+    box-shadow:
+      0 0 30px rgba(0, 209, 255, 0.3),
+      0 0 60px rgba(157, 78, 221, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .cosmic-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(4px 4px at 20px 30px, var(--accent-star), rgba(0,0,0,0)),
+      radial-gradient(5px 5px at 40px 70px, var(--accent-purple), rgba(0,0,0,0)),
+      radial-gradient(3px 3px at 50px 160px, var(--accent-star), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 90px 40px, var(--accent-nova), rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    opacity: 0.4;
+    animation: navStarTwinkle 4s infinite;
+  }
+
+  .nebula {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(157, 78, 221, 0.15) 0%,
+      rgba(0, 209, 255, 0.15) 50%,
+      transparent 100%
+    );
+    animation: navNebulaPulse 8s ease-in-out infinite;
+    filter: blur(8px);
+  }
+
+  .page-navigation h2 {
+    margin-top: 0;
+    color: var(--accent-blue);
+    text-align: center;
+    font-size: 2rem;
+    position: relative;
+    z-index: 1;
+    text-shadow:
+      0 0 20px rgba(0, 209, 255, 0.5),
+      0 0 40px rgba(0, 209, 255, 0.3);
+    background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .page-navigation ul {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-navigation a {
+    display: block;
+    padding: 1.2rem;
+    background: rgba(42, 45, 58, 0.8);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(0, 209, 255, 0.2);
+    box-shadow:
+      0 4px 20px rgba(0, 209, 255, 0.2),
+      0 0 30px rgba(157, 78, 221, 0.2);
+    transition: all 0.3s var(--bounce-timing);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+  }
+
+  .link-content {
+    position: relative;
+    z-index: 1;
+    color: var(--text-primary);
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 209, 255, 0.5);
+    transition: all 0.3s var(--bounce-timing);
+  }
+
+  .page-navigation a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg,
+      rgba(0, 209, 255, 0.1),
+      rgba(157, 78, 221, 0.1)
+    );
+    opacity: 0;
+    transition: all 0.3s var(--bounce-timing);
+  }
+
+  .page-navigation a:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(0, 209, 255, 0.4);
+    box-shadow:
+      0 8px 30px rgba(0, 209, 255, 0.4),
+      0 0 50px rgba(157, 78, 221, 0.4);
+  }
+
+  .page-navigation a:hover .link-content {
+    color: var(--accent-blue);
+    text-shadow:
+      0 0 20px rgba(0, 209, 255, 0.8),
+      0 0 40px rgba(0, 209, 255, 0.4);
+  }
+
+  .page-navigation a:hover::before {
+    opacity: 1;
+  }
+
+  @keyframes navStarTwinkle {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes navNebulaPulse {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.2) rotate(5deg);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-navigation {
+      padding: 1.5rem;
+    }
+
+    .page-navigation ul {
+      grid-template-columns: 1fr;
+    }
+
+    .page-navigation h2 {
+      font-size: 1.5rem;
+    }
+  }
+</style>

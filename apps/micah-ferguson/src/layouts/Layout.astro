@@ -1,0 +1,108 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+
+interface Props {
+  title: string;
+  description: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  heroImage?: {
+    url: string;
+    mimeType: string;
+  };
+}
+
+const { title, publishedAt, updatedAt, description } = Astro.props;
+
+const publishedDate = publishedAt ? new Date(publishedAt) : null;
+const updatedDate = updatedAt ? new Date(updatedAt) : null;
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+
+  <body>
+    <Header />
+
+    <main>
+      <article class="content-wrapper">
+        <div class="content-container">
+          <slot />
+        </div>
+      </article>
+    </main>
+
+    <Footer
+      publishedDate={publishedDate}
+      updatedDate={updatedDate}
+    />
+  </body>
+</html>
+
+<style>
+  main {
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 1rem;
+    overflow-x: hidden;
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  }
+
+  .content-wrapper {
+    width: 100%;
+    margin-bottom: 2rem;
+    contain: layout style paint;
+  }
+
+  .content-container {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding: 0.5rem;
+    }
+
+    .content-container {
+      padding: 0.25rem;
+    }
+  }
+</style>
+
+<style is:global>
+  :root {
+    --header-height: 80px;
+    --footer-height: 200px;
+  }
+
+  /* Prevent layout shifts from dynamically loaded content */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: attr(width) / attr(height);
+  }
+
+  /* Ensure consistent spacing for text elements */
+  h1, h2, h3, h4, h5, h6, p {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+  }
+
+  /* Prevent layout shifts from font loading */
+  html {
+    font-synthesis: none;
+  }
+</style>
