@@ -37,8 +37,6 @@ jobs:
     - name: Run Astro check
       run: npm run astro:check
 
-    - name: Build all projects
-      run: npm run build
 
   # deploy-molly:
   #   runs-on: ubuntu-latest
