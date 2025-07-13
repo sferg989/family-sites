@@ -2,6 +2,9 @@
   "name": "mollyferguson-info",
   // Update to today's date
   "compatibility_date": "2025-01-27",
+  "build": {
+    "command": "npm run build"
+  },
   "assets": {
     "directory": "./dist"
   }
