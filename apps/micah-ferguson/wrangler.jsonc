@@ -1,0 +1,8 @@
+{
+  "name": "micah-ferguson",
+  // Update to today's date
+  "compatibility_date": "2025-01-27",
+  "assets": {
+    "directory": "./dist"
+  }
+} 
