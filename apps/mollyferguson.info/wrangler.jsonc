@@ -1,5 +1,7 @@
 {
   "name": "mollyferguson-info",
+  "account_id": "bf9a1ae5b7974b7510d15e0d5b6a8ebc",
+  "zone_id": "aa24bfb3a010a6c4cd877e0d100fa352",
   // Update to today's date
   "compatibility_date": "2025-01-27",
   "build": {
