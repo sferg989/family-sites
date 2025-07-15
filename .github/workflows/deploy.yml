@@ -27,7 +27,16 @@ jobs:
         run: |
           # Check if this was triggered by repository_dispatch
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            SITE_FILTER="${{ github.event.client_payload.site || 'both' }}"
+            # Check if payload has data.id structure
+            DATA_ID="${{ github.event.client_payload.data.id }}"
+            if [ "$DATA_ID" = "cm04nyf07552w07k4jjp4m99x" ]; then
+              SITE_FILTER="molly"
+            elif [ -n "$DATA_ID" ]; then
+              SITE_FILTER="micah"
+            else
+              # Fallback to legacy Sitetobuild field if data.id not found
+              SITE_FILTER="${{ github.event.client_payload.Sitetobuild || 'both' }}"
+            fi
           else
             SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
           fi
