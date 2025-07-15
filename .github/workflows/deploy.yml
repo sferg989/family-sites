@@ -63,7 +63,7 @@ jobs:
             deploy_command: deploy:micah
     
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      CF_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
       ASTRO_HYGRAPH_ENDPOINT: ${{ matrix.endpoint }}
 
