@@ -73,10 +73,14 @@ jobs:
     - name: Build mollyferguson.info
       if: steps.sites.outputs.deploy-molly == 'true'
       run: npm run build:molly
+      env:
+        ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
 
     - name: Build micah-ferguson
       if: steps.sites.outputs.deploy-micah == 'true'
       run: npm run build:micah
+      env:
+        ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
 
     - name: Deploy mollyferguson.info
       if: steps.sites.outputs.deploy-molly == 'true'
