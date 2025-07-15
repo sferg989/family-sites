@@ -1,0 +1,102 @@
+name: Deploy to Cloudflare
+
+on:
+  repository_dispatch:
+    types: [cms-content-updated]
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Which site to deploy'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - molly
+          - micah
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Determine sites to deploy
+      id: sites
+      run: |
+        # Check if this was triggered by repository_dispatch
+        if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          # Extract site information from webhook payload
+          SITE_FILTER="${{ github.event.client_payload.site || 'both' }}"
+        else
+          # Use manual input for workflow_dispatch
+          SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
+        fi
+        
+        echo "site-filter=$SITE_FILTER" >> $GITHUB_OUTPUT
+        
+        # Determine which sites to deploy
+        case $SITE_FILTER in
+          "molly"|"mollyferguson"|"mollyferguson.info")
+            echo "deploy-molly=true" >> $GITHUB_OUTPUT
+            echo "deploy-micah=false" >> $GITHUB_OUTPUT
+            echo "Will deploy: mollyferguson.info only"
+            ;;
+          "micah"|"micah-ferguson")
+            echo "deploy-molly=false" >> $GITHUB_OUTPUT
+            echo "deploy-micah=true" >> $GITHUB_OUTPUT
+            echo "Will deploy: micah-ferguson only"
+            ;;
+          *)
+            echo "deploy-molly=true" >> $GITHUB_OUTPUT
+            echo "deploy-micah=true" >> $GITHUB_OUTPUT
+            echo "Will deploy: both sites"
+            ;;
+        esac
+
+    - name: Build mollyferguson.info
+      if: steps.sites.outputs.deploy-molly == 'true'
+      run: npm run build:molly
+
+    - name: Build micah-ferguson
+      if: steps.sites.outputs.deploy-micah == 'true'
+      run: npm run build:micah
+
+    - name: Deploy mollyferguson.info
+      if: steps.sites.outputs.deploy-molly == 'true'
+      run: npm run deploy:molly
+      env:
+        CF_API_KEY: ${{ secrets.CF_API_KEY }}
+
+    - name: Deploy micah-ferguson
+      if: steps.sites.outputs.deploy-micah == 'true'
+      run: npm run deploy:micah
+      env:
+        CF_API_KEY: ${{ secrets.CF_API_KEY }}
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          echo "Webhook event type: ${{ github.event.action }}"
+          echo "Site filter: ${{ steps.sites.outputs.site-filter }}"
+        fi
+        echo "Deployed mollyferguson.info: ${{ steps.sites.outputs.deploy-molly }}"
+        echo "Deployed micah-ferguson: ${{ steps.sites.outputs.deploy-micah }}" 
