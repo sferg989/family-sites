@@ -19,7 +19,8 @@ jobs:
   determine-sites:
     runs-on: ubuntu-latest
     outputs:
-      sites: ${{ steps.sites.outputs.sites }}
+      deploy-molly: ${{ steps.sites.outputs.deploy-molly }}
+      deploy-micah: ${{ steps.sites.outputs.deploy-micah }}
     steps:
       - name: Determine sites to deploy
         id: sites
@@ -33,39 +34,29 @@ jobs:
           
           case $SITE_FILTER in
             "molly"|"mollyferguson"|"mollyferguson.info")
-              echo 'sites=["molly"]' >> $GITHUB_OUTPUT
+              echo 'deploy-molly=true' >> $GITHUB_OUTPUT
+              echo 'deploy-micah=false' >> $GITHUB_OUTPUT
               ;;
             "micah"|"micah-ferguson")
-              echo 'sites=["micah"]' >> $GITHUB_OUTPUT
+              echo 'deploy-molly=false' >> $GITHUB_OUTPUT
+              echo 'deploy-micah=true' >> $GITHUB_OUTPUT
               ;;
             *)
-              echo 'sites=["molly","micah"]' >> $GITHUB_OUTPUT
+              echo 'deploy-molly=true' >> $GITHUB_OUTPUT
+              echo 'deploy-micah=true' >> $GITHUB_OUTPUT
               ;;
           esac
 
-  deploy:
+  deploy-molly:
     needs: determine-sites
+    if: needs.determine-sites.outputs.deploy-molly == 'true'
     runs-on: ubuntu-latest
     environment: production
-    strategy:
-      matrix:
-        site: ${{ fromJson(needs.determine-sites.outputs.sites) }}
-        include:
-          - site: molly
-            app_name: mollyferguson.info
-            endpoint: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
-            build_command: build:molly
-            deploy_command: deploy:molly
-          - site: micah
-            app_name: micah-ferguson
-            endpoint: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
-            build_command: build:micah
-            deploy_command: deploy:micah
     
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
-      ASTRO_HYGRAPH_ENDPOINT: ${{ matrix.endpoint }}
+      ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
 
     steps:
     - name: Checkout code
@@ -80,14 +71,48 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Build ${{ matrix.app_name }}
-      run: npm run ${{ matrix.build_command }}
+    - name: Build mollyferguson.info
+      run: npm run build:molly
 
-    - name: Deploy ${{ matrix.app_name }}
-      run: npm run ${{ matrix.deploy_command }}
+    - name: Deploy mollyferguson.info
+      run: npm run deploy:molly
 
     - name: Report deployment status
       run: |
-        echo "🚀 Deployment of ${{ matrix.app_name }} completed successfully!"
+        echo "🚀 Deployment of mollyferguson.info completed successfully!"
         echo "Triggered by: ${{ github.event_name }}"
-        echo "Site: ${{ matrix.site }}" 
+
+  deploy-micah:
+    needs: determine-sites
+    if: needs.determine-sites.outputs.deploy-micah == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build micah-ferguson
+      run: npm run build:micah
+
+    - name: Deploy micah-ferguson
+      run: npm run deploy:micah
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of micah-ferguson completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}" 
