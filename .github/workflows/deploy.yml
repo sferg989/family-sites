@@ -16,16 +16,56 @@ on:
           - micah
 
 jobs:
+  determine-sites:
+    runs-on: ubuntu-latest
+    outputs:
+      sites: ${{ steps.sites.outputs.sites }}
+    steps:
+      - name: Determine sites to deploy
+        id: sites
+        run: |
+          # Check if this was triggered by repository_dispatch
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            SITE_FILTER="${{ github.event.client_payload.site || 'both' }}"
+          else
+            SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
+          fi
+          
+          case $SITE_FILTER in
+            "molly"|"mollyferguson"|"mollyferguson.info")
+              echo 'sites=["molly"]' >> $GITHUB_OUTPUT
+              ;;
+            "micah"|"micah-ferguson")
+              echo 'sites=["micah"]' >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo 'sites=["molly","micah"]' >> $GITHUB_OUTPUT
+              ;;
+          esac
+
   deploy:
+    needs: determine-sites
     runs-on: ubuntu-latest
     environment: production
+    strategy:
+      matrix:
+        site: ${{ fromJson(needs.determine-sites.outputs.sites) }}
+        include:
+          - site: molly
+            app_name: mollyferguson.info
+            endpoint: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
+            build_command: build:molly
+            deploy_command: deploy:molly
+          - site: micah
+            app_name: micah-ferguson
+            endpoint: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
+            build_command: build:micah
+            deploy_command: deploy:micah
     
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
       NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
-      # Set both endpoints at job level to ensure they're available during builds
-      MOLLY_ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
-      MICAH_ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
+      ASTRO_HYGRAPH_ENDPOINT: ${{ matrix.endpoint }}
 
     steps:
     - name: Checkout code
@@ -40,70 +80,14 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Determine sites to deploy
-      id: sites
-      run: |
-        # Check if this was triggered by repository_dispatch
-        if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-          # Extract site information from webhook payload
-          SITE_FILTER="${{ github.event.client_payload.site || 'both' }}"
-        else
-          # Use manual input for workflow_dispatch
-          SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
-        fi
-        
-        echo "site-filter=$SITE_FILTER" >> $GITHUB_OUTPUT
-        
-        # Determine which sites to deploy
-        case $SITE_FILTER in
-          "molly"|"mollyferguson"|"mollyferguson.info")
-            echo "deploy-molly=true" >> $GITHUB_OUTPUT
-            echo "deploy-micah=false" >> $GITHUB_OUTPUT
-            echo "Will deploy: mollyferguson.info only"
-            ;;
-          "micah"|"micah-ferguson")
-            echo "deploy-molly=false" >> $GITHUB_OUTPUT
-            echo "deploy-micah=true" >> $GITHUB_OUTPUT
-            echo "Will deploy: micah-ferguson only"
-            ;;
-          *)
-            echo "deploy-molly=true" >> $GITHUB_OUTPUT
-            echo "deploy-micah=true" >> $GITHUB_OUTPUT
-            echo "Will deploy: both sites"
-            ;;
-        esac
+    - name: Build ${{ matrix.app_name }}
+      run: npm run ${{ matrix.build_command }}
 
-    - name: Build mollyferguson.info
-      if: steps.sites.outputs.deploy-molly == 'true'
-      run: npm run build:molly
-      env:
-        ASTRO_HYGRAPH_ENDPOINT: ${{ env.MOLLY_ASTRO_HYGRAPH_ENDPOINT }}
-
-    - name: Build micah-ferguson
-      if: steps.sites.outputs.deploy-micah == 'true'
-      run: npm run build:micah
-      env:
-        ASTRO_HYGRAPH_ENDPOINT: ${{ env.MICAH_ASTRO_HYGRAPH_ENDPOINT }}
-
-    - name: Deploy mollyferguson.info
-      if: steps.sites.outputs.deploy-molly == 'true'
-      run: npm run deploy:molly
-      env:
-        CF_API_KEY: ${{ secrets.CF_API_KEY }}
-
-    - name: Deploy micah-ferguson
-      if: steps.sites.outputs.deploy-micah == 'true'
-      run: npm run deploy:micah
-      env:
-        CF_API_KEY: ${{ secrets.CF_API_KEY }}
+    - name: Deploy ${{ matrix.app_name }}
+      run: npm run ${{ matrix.deploy_command }}
 
     - name: Report deployment status
       run: |
-        echo "🚀 Deployment completed successfully!"
+        echo "🚀 Deployment of ${{ matrix.app_name }} completed successfully!"
         echo "Triggered by: ${{ github.event_name }}"
-        if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-          echo "Webhook event type: ${{ github.event.action }}"
-          echo "Site filter: ${{ steps.sites.outputs.site-filter }}"
-        fi
-        echo "Deployed mollyferguson.info: ${{ steps.sites.outputs.deploy-molly }}"
-        echo "Deployed micah-ferguson: ${{ steps.sites.outputs.deploy-micah }}" 
+        echo "Site: ${{ matrix.site }}" 
