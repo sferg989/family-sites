@@ -3,6 +3,17 @@ name: CMS Deploy
 on:
   repository_dispatch:
     types: [cms-content-updated]
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site to deploy'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - molly
+          - micah
 
 jobs:
   determine-sites:
