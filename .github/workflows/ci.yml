@@ -5,6 +5,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Which site to deploy'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - molly
+          - micah
+          - webhook
 
 jobs:
   build:
@@ -84,4 +96,107 @@ jobs:
       if: steps.version-check.outputs.should-publish == 'true'
       run: npm publish --workspace=packages/astro-utils
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }} 
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+
+  deploy-webhook:
+    if: github.event.inputs.site == 'webhook' || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'apps/webhook-dispatcher/'))
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build webhook-dispatcher
+      run: npm run build:webhook
+
+    - name: Deploy webhook-dispatcher
+      run: npm run deploy:webhook
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of webhook-dispatcher completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}"
+
+  deploy-molly:
+    if: github.event.inputs.site == 'molly' || github.event.inputs.site == 'both'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build mollyferguson.info
+      run: npm run build:molly
+
+    - name: Deploy mollyferguson.info
+      run: npm run deploy:molly
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of mollyferguson.info completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}"
+
+  deploy-micah:
+    if: github.event.inputs.site == 'micah' || github.event.inputs.site == 'both'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build micah-ferguson
+      run: npm run build:micah
+
+    - name: Deploy micah-ferguson
+      run: npm run deploy:micah
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of micah-ferguson completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}" 
