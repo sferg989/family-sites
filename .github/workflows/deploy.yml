@@ -1,4 +1,4 @@
-name: CMS Deploy
+name: Site Deploy
 
 on:
   repository_dispatch:
@@ -16,47 +16,11 @@ on:
           - micah
 
 jobs:
-  determine-sites:
-    runs-on: ubuntu-latest
-    outputs:
-      deploy-molly: ${{ steps.sites.outputs.deploy-molly }}
-      deploy-micah: ${{ steps.sites.outputs.deploy-micah }}
-    steps:
-      - name: Determine sites to deploy
-        id: sites
-        run: |
-          # Check if this was triggered by repository_dispatch
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            # Use the event_type (github.event.action) to determine which site to deploy
-            SITE_FILTER="${{ github.event.action }}"
-            echo "Repository dispatch with event type: $SITE_FILTER"
-          else
-            # Manual workflow dispatch
-            SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
-            echo "Manual dispatch with site: $SITE_FILTER"
-          fi
-          
-          case $SITE_FILTER in
-            "molly"|"mollyferguson"|"mollyferguson.info")
-              echo 'deploy-molly=true' >> $GITHUB_OUTPUT
-              echo 'deploy-micah=false' >> $GITHUB_OUTPUT
-              echo "Deploying: mollyferguson.info only"
-              ;;
-            "micah"|"micah-ferguson")
-              echo 'deploy-molly=false' >> $GITHUB_OUTPUT
-              echo 'deploy-micah=true' >> $GITHUB_OUTPUT
-              echo "Deploying: micah-ferguson only"
-              ;;
-            *)
-              echo 'deploy-molly=true' >> $GITHUB_OUTPUT
-              echo 'deploy-micah=true' >> $GITHUB_OUTPUT
-              echo "Deploying: both sites"
-              ;;
-          esac
-
   deploy-molly:
-    needs: determine-sites
-    if: needs.determine-sites.outputs.deploy-molly == 'true'
+    if: |
+      github.event.action == 'molly' || 
+      github.event.inputs.site == 'molly' || 
+      github.event.inputs.site == 'both'
     runs-on: ubuntu-latest
     environment: production
     
@@ -90,8 +54,10 @@ jobs:
         echo "Triggered by: ${{ github.event_name }}"
 
   deploy-micah:
-    needs: determine-sites
-    if: needs.determine-sites.outputs.deploy-micah == 'true'
+    if: |
+      github.event.action == 'micah' || 
+      github.event.inputs.site == 'micah' || 
+      github.event.inputs.site == 'both'
     runs-on: ubuntu-latest
     environment: production
     
