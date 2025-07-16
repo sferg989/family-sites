@@ -48,7 +48,7 @@ async function handleWebhook(
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+          'Authorization': `Bearer ${env.NPM_GH_TOKEN}`,
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
           'User-Agent': 'webhook-dispatcher/1.0'
@@ -140,7 +140,7 @@ export default {
     }
     
     // Validate environment variables
-    if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) {
+    if (!env.NPM_GH_TOKEN || !env.GITHUB_REPO) {
       return new Response(
         JSON.stringify({ error: 'Missing required environment variables' }), 
         { 

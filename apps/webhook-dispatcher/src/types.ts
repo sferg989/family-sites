@@ -1,5 +1,5 @@
 export interface Environment {
-  readonly GITHUB_TOKEN: string;
+  readonly NPM_GH_TOKEN: string;
   readonly GITHUB_REPO: string;
   readonly GITHUB_API_URL: string;
 }
