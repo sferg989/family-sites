@@ -2,7 +2,7 @@ name: CMS Deploy
 
 on:
   repository_dispatch:
-    types: [cms-content-updated]
+    types: [molly, micah]
   workflow_dispatch:
     inputs:
       site:
