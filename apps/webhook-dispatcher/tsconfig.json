@@ -1,12 +1,15 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
     "types": ["@cloudflare/workers-types"],
-    "moduleResolution": "node", 
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
+    "strict": true,
     "noEmit": false
   },
   "include": ["src/**/*"],
