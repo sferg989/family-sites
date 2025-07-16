@@ -14,6 +14,11 @@ on:
           - both
           - molly
           - micah
+          - webhook
+  push:
+    branches: [main]
+    paths:
+      - 'apps/webhook-dispatcher/**'
 
 jobs:
   determine-sites:
@@ -27,32 +32,30 @@ jobs:
         run: |
           # Check if this was triggered by repository_dispatch
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            # Check if payload has data.id structure
-            DATA_ID="${{ github.event.client_payload.data.id }}"
-            if [ "$DATA_ID" = "cm04nyf07552w07k4jjp4m99x" ]; then
-              SITE_FILTER="molly"
-            elif [ -n "$DATA_ID" ]; then
-              SITE_FILTER="micah"
-            else
-              # Fallback to legacy Sitetobuild field if data.id not found
-              SITE_FILTER="${{ github.event.client_payload.Sitetobuild || 'both' }}"
-            fi
+            # Use the event_type (github.event.action) to determine which site to deploy
+            SITE_FILTER="${{ github.event.action }}"
+            echo "Repository dispatch with event type: $SITE_FILTER"
           else
+            # Manual workflow dispatch
             SITE_FILTER="${{ github.event.inputs.site || 'both' }}"
+            echo "Manual dispatch with site: $SITE_FILTER"
           fi
           
           case $SITE_FILTER in
             "molly"|"mollyferguson"|"mollyferguson.info")
               echo 'deploy-molly=true' >> $GITHUB_OUTPUT
               echo 'deploy-micah=false' >> $GITHUB_OUTPUT
+              echo "Deploying: mollyferguson.info only"
               ;;
             "micah"|"micah-ferguson")
               echo 'deploy-molly=false' >> $GITHUB_OUTPUT
               echo 'deploy-micah=true' >> $GITHUB_OUTPUT
+              echo "Deploying: micah-ferguson only"
               ;;
             *)
               echo 'deploy-molly=true' >> $GITHUB_OUTPUT
               echo 'deploy-micah=true' >> $GITHUB_OUTPUT
+              echo "Deploying: both sites"
               ;;
           esac
 
@@ -124,4 +127,36 @@ jobs:
     - name: Report deployment status
       run: |
         echo "🚀 Deployment of micah-ferguson completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}"
+
+  deploy-webhook:
+    if: github.event.inputs.site == 'webhook' || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'apps/webhook-dispatcher/'))
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build webhook-dispatcher
+      run: npm run build:webhook
+
+    - name: Deploy webhook-dispatcher
+      run: npm run deploy:webhook
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of webhook-dispatcher completed successfully!"
         echo "Triggered by: ${{ github.event_name }}" 
