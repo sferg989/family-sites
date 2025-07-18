@@ -1,5 +1,6 @@
 ---
 import type { Page, DigitalAsset } from '@sferg989/astro-utils';
+import { optimizeImages } from '@sferg989/astro-utils';
 import VideoGrid from './VideoGrid.astro';
 
 interface Props {
@@ -8,12 +9,15 @@ interface Props {
 }
 
 const { content, highlights = [] } = Astro.props;
+
+// Optimize images in the HTML content if it exists
+const optimizedContent = content?.html ? await optimizeImages(content.html) : null;
 ---
 
 <article class="page-body">
   {
-    content?.html ? (
-      <div set:html={content.html} class="content-wrapper" />
+    optimizedContent ? (
+      <div set:html={optimizedContent} class="content-wrapper" />
     ) : (
       <p class="content-wrapper">No content available.</p>
     )
@@ -43,11 +47,18 @@ const { content, highlights = [] } = Astro.props;
     margin: 0 auto;
   }
 
-  .content-wrapper :global(img) {
+  .content-wrapper :global(img),
+  .content-wrapper :global(picture) {
     max-width: 100%;
     height: auto;
     border-radius: var(--border-radius);
     margin: 1.5rem 0;
+    display: block;
+  }
+
+  .content-wrapper :global(picture img) {
+    margin: 0;
+    border-radius: inherit;
   }
 
   .content-wrapper :global(h2) {
