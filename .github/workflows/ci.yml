@@ -12,11 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      # # For mollyferguson.info
-      # MOLLY_ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
-      # # For micah-ferguson  
-      # MICAH_ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
-      # # GitHub Packages token
+      ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
       NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
     steps:
