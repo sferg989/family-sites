@@ -38,54 +38,54 @@ jobs:
     - name: Run Astro check
       run: npm run astro:check
 
-  publish-utils:
-    runs-on: ubuntu-latest
+  publish:
     needs: build
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@sferg989'
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'npm'
-        registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Build
+        run: npm run build
 
-    - name: Build astro-utils
-      run: npm run build:utils
+      - name: Check if version changed
+        id: version-check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./packages/astro-utils/package.json').version")
+          echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          # Try to get the latest published version from GitHub Packages
+          PUBLISHED_VERSION=$(npm view @sferg989/astro-utils version --registry=https://npm.pkg.github.com 2>/dev/null || echo "0.0.0")
+          echo "published-version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+          
+          if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
+            echo "should-publish=true" >> $GITHUB_OUTPUT
+            echo "Version changed from $PUBLISHED_VERSION to $CURRENT_VERSION - will publish"
+          else
+            echo "should-publish=false" >> $GITHUB_OUTPUT
+            echo "Version $CURRENT_VERSION already published - skipping"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
-    - name: Check if version changed
-      id: version-check
-      run: |
-        CURRENT_VERSION=$(node -p "require('./packages/astro-utils/package.json').version")
-        echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-        
-        # Try to get the latest published version
-        PUBLISHED_VERSION=$(npm view @sferg989/astro-utils version --registry=https://registry.npmjs.org 2>/dev/null || echo "0.0.0")
-        echo "published-version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
-        
-        if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
-          echo "should-publish=true" >> $GITHUB_OUTPUT
-          echo "Version changed from $PUBLISHED_VERSION to $CURRENT_VERSION - will publish"
-        else
-          echo "should-publish=false" >> $GITHUB_OUTPUT
-          echo "Version $CURRENT_VERSION already published - skipping"
-        fi
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
-
-    - name: Publish to GitHub Packages
-      if: steps.version-check.outputs.should-publish == 'true'
-      run: npm publish --workspace=packages/astro-utils
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      - name: Publish to GitHub Packages
+        if: steps.version-check.outputs.should-publish == 'true'
+        run: npm publish --workspace=packages/astro-utils
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
   deploy-webhook:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
