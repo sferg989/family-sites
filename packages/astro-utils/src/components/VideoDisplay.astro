@@ -1,0 +1,130 @@
+---
+import type { DigitalAsset } from '../util/types/page';
+
+interface Props {
+  videos: DigitalAsset[];
+  title?: string;
+  gridColumns?: number;
+}
+
+const { videos, title = "Highlights", gridColumns = 3 } = Astro.props;
+
+const isVideoType = (mimeType: string): boolean => {
+  return mimeType.startsWith('video/');
+};
+---
+
+{videos.length > 0 && (
+  <section class="video-display" aria-labelledby="video-heading">
+    <h2 id="video-heading" class="video-title">{title}</h2>
+    
+    <div class="video-grid" style={`--grid-columns: ${gridColumns}`}>
+      {videos.map((item, index) => (
+        <div class="video-item">
+          {isVideoType(item.mimeType) ? (
+            <div class="video-container">
+              <video 
+                controls
+                preload="metadata"
+                playsinline
+                class="video-element"
+              >
+                <source src={item.url} type={item.mimeType} />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          ) : (
+            <div class="image-container">
+              <img
+                src={item.url}
+                alt={`${title} image ${index + 1}`}
+                loading="lazy"
+                class="image-element"
+              />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .video-display {
+    margin: 2rem 0;
+  }
+
+  .video-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: var(--text-color, #333);
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .video-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .video-grid {
+      grid-template-columns: repeat(var(--grid-columns, 3), 1fr);
+    }
+  }
+
+  .video-item {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-element {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    background: #000;
+  }
+
+  .image-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .image-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Performance optimizations */
+  .video-element {
+    will-change: auto;
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .video-element,
+    .image-element {
+      transition: none;
+    }
+  }
+</style> 

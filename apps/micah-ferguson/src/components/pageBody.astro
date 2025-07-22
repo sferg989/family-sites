@@ -1,7 +1,6 @@
 ---
 import type { Page, DigitalAsset } from '@sferg989/astro-utils';
-import { optimizeImages } from '@sferg989/astro-utils';
-import VideoGrid from './VideoGrid.astro';
+import { optimizeImages, VideoDisplay } from '@sferg989/astro-utils';
 
 interface Props {
   content: Page['body'];
@@ -55,10 +54,7 @@ const optimizedContent = content?.html ? await optimizeImages(content.html) : nu
   }
 
   {highlights.length > 0 && (
-    <section class="highlights">
-      <h2>Highlights</h2>
-      <VideoGrid videos={highlights} />
-    </section>
+    <VideoDisplay videos={highlights} title="Highlights" />
   )}
 
   <nav class="back-link">
@@ -127,22 +123,7 @@ const optimizedContent = content?.html ? await optimizeImages(content.html) : nu
     text-decoration: underline;
   }
 
-  .highlights {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--accent-color);
-    /* Reserve space to prevent layout shift */
-    min-height: 200px;
-  }
 
-  .highlights h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: var(--primary-blue);
-    /* Prevent layout shift */
-    margin-block-start: 0;
-    margin-block-end: 1.5rem;
-  }
 
   .back-link {
     margin-top: 2rem;

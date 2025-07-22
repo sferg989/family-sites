@@ -1,7 +1,7 @@
 ---
 
 import type { Page } from '@sferg989/astro-utils';
-import Picture from './Picture.astro';
+import { VideoDisplay } from '@sferg989/astro-utils';
 
 interface Props {
   page: Page;
@@ -20,31 +20,7 @@ const { page } = Astro.props;
     )}
 
     {page.highlights?.length > 0 && (
-      <section class="highlights mt-12" aria-labelledby="highlights-heading">
-        <h2 id="highlights-heading" class="text-2xl font-bold mb-4">Highlights</h2>
-
-        <div class="media-grid">
-          {page.highlights.map((item, index) => (
-            <div class="media-grid-item">
-              {item.mimeType.startsWith('video/') ? (
-                <div class="video-container">
-                  <video controls>
-                    <source src={item.url} type={item.mimeType} />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ) : (
-                <div class="image-container">
-                  <Picture
-                    src={item.url}
-                    alt={`Highlight image ${index + 1} for ${page.title}`}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+      <VideoDisplay videos={page.highlights} title="Highlights" />
     )}
 
     <nav class="mt-8 text-center" aria-label="Back to homepage">
@@ -81,56 +57,5 @@ const { page } = Astro.props;
     line-height: 1.75;
   }
 
-  .media-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 2rem;
-    margin: 2rem 0;
-  }
 
-  @media (min-width: 640px) {
-    .media-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .media-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  .media-grid-item {
-    aspect-ratio: 16 / 9;
-    width: 100%;
-  }
-
-  .video-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-
-  .video-container video {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    box-shadow: var(--box-shadow);
-    object-fit: cover;
-  }
-
-  .image-container {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .image-container :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: var(--box-shadow);
-  }
 </style>
