@@ -24,17 +24,51 @@ const {
 } = Astro.props;
 ---
 
+<!-- Critical CSS inlined for immediate rendering -->
+<style is:inline>
+  /* Critical above-fold styles - only essential layout to prevent CLS */
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #030711; /* Use literal value for critical CSS */
+    color: #FFFFFF;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  
+  main {
+    max-width: min(1200px, 100% - 2rem);
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(3, 7, 17, 0.8);
+    border-radius: 12px;
+    min-height: calc(100vh - 80px - 200px);
+  }
+  
+  /* Prevent layout shift during font loading */
+  .content-wrapper {
+    font-synthesis: none;
+    text-rendering: optimizeSpeed;
+  }
+</style>
+
 <!-- Global Metadata -->
 <meta charset='utf-8' />
 <meta name='viewport' content='width=device-width,initial-scale=1' />
 <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
 <meta name='generator' content={Astro.generator} />
 
-<!-- Resource Hints -->
+<!-- Preconnect to critical domains first -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
-<!-- Font preloads -->
+<!-- Critical font preloads with higher priority -->
 <link
   rel='preload'
   href='/fonts/poppins-regular.woff2'
@@ -50,6 +84,7 @@ const {
   crossorigin
 />
 
+<!-- CSS is handled by Astro's built-in bundling -->
 
 <!-- Canonical URL -->
 <link rel='canonical' href={canonicalURL} />
@@ -76,6 +111,39 @@ const {
 
 <!-- Performance Optimizations -->
 <meta http-equiv="x-dns-prefetch-control" content="on" />
+
+<!-- Resource hints for critical resources -->
 <link rel="modulepreload" href="/src/pages/index.astro" />
 <link rel="modulepreload" href="/src/components/Header.astro" />
-<link rel="modulepreload" href="/src/components/Footer.astro" />
+<link rel="prefetch" href="/src/components/Footer.astro" />
+
+<!-- Optimize for Core Web Vitals -->
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#030711" />
+
+<!-- Performance optimizations -->
+<script is:inline>
+  // Optimize font loading
+  if ('fonts' in document) {
+    document.fonts.ready.then(() => {
+      document.documentElement.classList.add('fonts-loaded');
+    });
+  }
+  
+  // Preload critical images (only run once)
+  if (!window.criticalImagesLoaded) {
+    window.criticalImagesLoaded = true;
+    
+    const criticalImageSources = [
+      '/favicon.svg'
+    ];
+    
+    criticalImageSources.forEach(src => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = src;
+      document.head.appendChild(link);
+    });
+  }
+</script>

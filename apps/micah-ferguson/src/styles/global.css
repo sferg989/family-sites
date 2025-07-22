@@ -19,6 +19,12 @@
 	--text-primary: #FFFFFF;
 	--text-secondary: #B8B8B8;
 	
+	/* Missing variables that are referenced in components */
+	--primary-orange: #FF8C42;   /* Orange accent for links */
+	--accent-orange: #FFB366;    /* Lighter orange for hover states */
+	--accent-color: #00D1FF;     /* Alias for primary accent */
+	--text-color: #FFFFFF;       /* Alias for primary text color */
+	
 	/* Layout */
 	--header-height: 80px;
 	--content-width: min(1200px, 100% - 2rem);

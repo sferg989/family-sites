@@ -13,35 +13,59 @@ const isVideoType = (mimeType: string) => {
 };
 ---
 
+<!-- Critical CSS inlined for above-fold content -->
+<style is:inline>
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    contain: layout style paint;
+  }
+  .video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio - prevents layout shift */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    /* Optimize compositing */
+    will-change: transform;
+    transform: translateZ(0);
+  }
+</style>
+
 <div class="video-grid">
   {
-    videos.map((video) => (
-      <div class="video-container">
+    videos.map((video, index) => (
+      <div class="video-container" data-video-index={index}>
         {isVideoType(video.mimeType) && (
-          <video controls>
-            <source src={video.url} type="video/mp4" />
+          <video 
+            controls
+            preload={index < 2 ? "metadata" : "none"}
+            playsinline
+            muted
+            poster=""
+            data-src={video.url}
+            data-priority={index < 2 ? "high" : "low"}
+          >
+            <source data-src={video.url} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         )}
+        
+        <!-- Loading placeholder to prevent layout shift -->
+        <div class="video-placeholder" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5,3 19,12 5,21"></polygon>
+          </svg>
+        </div>
       </div>
     ))
   }
 </div>
 
 <style>
-  .video-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-  }
-
-  .video-container {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
-  }
-
   .video-container video {
     position: absolute;
     top: 0;
@@ -50,5 +74,242 @@ const isVideoType = (mimeType: string) => {
     height: 100%;
     border-radius: 8px;
     box-shadow: var(--box-shadow);
+    z-index: 2;
+    /* Smooth loading transition */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    /* Optimize video rendering */
+    object-fit: cover;
+    background: #000;
+  }
+
+  .video-container video[data-loaded="true"] {
+    opacity: 1;
+  }
+
+  .video-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 1;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    /* Optimize for GPU */
+    will-change: opacity;
+  }
+
+  .video-container:has(video[data-loaded="true"]) .video-placeholder {
+    opacity: 0;
+  }
+
+  /* Enhanced responsive design */
+  @media (max-width: 640px) {
+    .video-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .video-container {
+      padding-top: 56.25%; /* Maintain aspect ratio on mobile */
+    }
+  }
+
+  /* Optimize for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .video-container video,
+    .video-placeholder {
+      transition: none;
+    }
+  }
+
+  /* Optimize for slow connections */
+  @media (prefers-reduced-data: reduce) {
+    .video-container video {
+      poster: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 169'%3E%3Crect fill='%23666' width='300' height='169'/%3E%3C/svg%3E";
+    }
+  }
+
+  /* Performance optimizations */
+  .video-container {
+    /* Promote to own compositing layer for smooth animations */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 </style>
+
+<script>
+  class VideoGridManager {
+    private videoObserver!: IntersectionObserver;
+    private playObserver!: IntersectionObserver;
+    private videos: NodeListOf<HTMLVideoElement>;
+    private currentlyPlaying: HTMLVideoElement | null = null;
+    private loadedVideos = new Set<HTMLVideoElement>();
+    
+    constructor() {
+      this.videos = document.querySelectorAll('.video-container video') as NodeListOf<HTMLVideoElement>;
+      this.initIntersectionObservers();
+      this.initVideoEventListeners();
+    }
+
+    private initIntersectionObservers(): void {
+      // Optimized loading observer with better performance
+      this.videoObserver = new IntersectionObserver(
+        this.handleVideoIntersection.bind(this),
+        {
+          threshold: [0.25],
+          rootMargin: '200px 0px 200px 0px', // Larger margin for better UX
+        }
+      );
+
+      // Separate observer for play/pause optimization
+      this.playObserver = new IntersectionObserver(
+        this.handlePlayIntersection.bind(this),
+        {
+          threshold: [0.5],
+          rootMargin: '0px'
+        }
+      );
+
+      // Observe all videos
+      this.videos.forEach(video => {
+        this.videoObserver.observe(video);
+        this.playObserver.observe(video);
+      });
+    }
+
+    private handleVideoIntersection(entries: IntersectionObserverEntry[]): void {
+      // Use requestIdleCallback for non-critical operations
+      const processEntries = () => {
+        entries.forEach(entry => {
+          const video = entry.target as HTMLVideoElement;
+          
+          if (entry.isIntersecting && !this.loadedVideos.has(video)) {
+            this.loadVideo(video);
+          }
+        });
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(processEntries);
+      } else {
+        setTimeout(processEntries, 0);
+      }
+    }
+
+    private handlePlayIntersection(entries: IntersectionObserverEntry[]): void {
+      entries.forEach(entry => {
+        const video = entry.target as HTMLVideoElement;
+        
+        if (!entry.isIntersecting && !video.paused) {
+          // Pause videos that are out of view
+          video.pause();
+        }
+      });
+    }
+
+    private loadVideo(video: HTMLVideoElement): void {
+      if (this.loadedVideos.has(video)) return;
+      
+      this.loadedVideos.add(video);
+      
+      const handleLoadedData = (): void => {
+        video.setAttribute('data-loaded', 'true');
+        this.videoObserver.unobserve(video);
+        video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('error', handleError);
+      };
+      
+      const handleError = (): void => {
+        console.warn('Video failed to load:', video.dataset.src);
+        video.setAttribute('data-loaded', 'true'); // Show placeholder
+        this.videoObserver.unobserve(video);
+        video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('error', handleError);
+      };
+      
+      video.addEventListener('loadeddata', handleLoadedData, { once: true });
+      video.addEventListener('error', handleError, { once: true });
+      
+      // Load the video source
+      const source = video.querySelector('source');
+      if (source && video.dataset.src) {
+        source.src = video.dataset.src;
+        video.src = video.dataset.src;
+        
+        // Set preload based on priority
+        video.preload = video.dataset.priority === 'high' ? 'metadata' : 'none';
+        video.load();
+      }
+    }
+
+    private initVideoEventListeners(): void {
+      // Use event delegation for better performance
+      document.addEventListener('play', this.handleVideoPlay.bind(this), true);
+      document.addEventListener('pause', this.handleVideoPause.bind(this), true);
+    }
+
+    private handleVideoPlay(event: Event): void {
+      const video = event.target as HTMLVideoElement;
+      
+      if (!this.videos.length || !video.closest('.video-container')) return;
+      
+      // Pause currently playing video if different
+      if (this.currentlyPlaying && this.currentlyPlaying !== video) {
+        this.currentlyPlaying.pause();
+      }
+      
+      this.currentlyPlaying = video;
+      
+      // Pause other videos for performance
+      this.videos.forEach(otherVideo => {
+        if (otherVideo !== video && !otherVideo.paused) {
+          otherVideo.pause();
+        }
+      });
+    }
+
+    private handleVideoPause(event: Event): void {
+      const video = event.target as HTMLVideoElement;
+      
+      if (this.currentlyPlaying === video) {
+        this.currentlyPlaying = null;
+      }
+    }
+
+    public destroy(): void {
+      this.videoObserver?.disconnect();
+      this.playObserver?.disconnect();
+      this.loadedVideos.clear();
+      this.currentlyPlaying = null;
+      
+      document.removeEventListener('play', this.handleVideoPlay.bind(this), true);
+      document.removeEventListener('pause', this.handleVideoPause.bind(this), true);
+    }
+  }
+
+  // Initialize video manager
+  let videoManager: VideoGridManager;
+  
+  // Use DOMContentLoaded for better performance
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      videoManager = new VideoGridManager();
+    });
+  } else {
+    videoManager = new VideoGridManager();
+  }
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    videoManager?.destroy();
+  });
+
+  // Clean up on navigation (for SPAs)
+  window.addEventListener('pagehide', () => {
+    videoManager?.destroy();
+  });
+</script>
