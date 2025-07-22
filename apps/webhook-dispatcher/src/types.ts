@@ -6,7 +6,7 @@ export interface Environment {
 
 export interface HygraphWebhookPayload {
   readonly operation: string;
-  readonly data: {
+  readonly data?: {
     readonly id: string;
     readonly __typename: string;
     readonly stage: string;

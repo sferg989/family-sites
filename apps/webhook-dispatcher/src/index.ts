@@ -7,6 +7,19 @@ import type {
 const MOLLY_HYGRAPH_ID = 'cm04nyf07552w07k4jjp4m99x';
 const CALEB_HYGRAPH_ID = 'cmcv1sjkiaehe07mylkcd58jy';
 
+function determineEventTypeFromId(dataId: string | undefined): string {
+  if (dataId === MOLLY_HYGRAPH_ID) {
+    return 'molly';
+  } else if (dataId === CALEB_HYGRAPH_ID) {
+    return 'caleb';
+  } else if (dataId) {
+    return 'micah';
+  } else {
+    // Default to all if no ID is provided
+    return 'all';
+  }
+}
+
 async function handleWebhook(
   request: Request, 
   env: Environment
@@ -17,18 +30,35 @@ async function handleWebhook(
     
     console.log('Received webhook:', JSON.stringify(payload, null, 2));
     
-    // Determine which site to deploy based on the data.id
+    // Check for Website header first
+    const websiteHeader = request.headers.get('Website');
+    console.log(`Website header: ${websiteHeader}`);
+    
+    // Determine which site to deploy based on the Website header or fallback to data.id
     let eventType: string;
     
-    if (payload.data?.id === MOLLY_HYGRAPH_ID) {
-      eventType = 'molly';
-    } else if (payload.data?.id === CALEB_HYGRAPH_ID) {
-      eventType = 'caleb';
-    } else if (payload.data?.id) {
-      eventType = 'micah';
+    if (websiteHeader) {
+      // Use header value to determine deployment target
+      switch (websiteHeader.toLowerCase()) {
+        case 'caleb':
+          eventType = 'caleb';
+          break;
+        case 'molly':
+          eventType = 'molly';
+          break;
+        case 'micah':
+          eventType = 'micah';
+          break;
+        case 'all':
+          eventType = 'all';
+          break;
+        default:
+          console.warn(`Unknown Website header value: ${websiteHeader}, falling back to ID-based logic`);
+          eventType = determineEventTypeFromId(payload.data?.id);
+      }
     } else {
-      // Default to all if no ID is provided
-      eventType = 'all';
+      // Fallback to original ID-based logic
+      eventType = determineEventTypeFromId(payload.data?.id);
     }
     
     console.log(`Determined event type: ${eventType}`);
@@ -41,6 +71,7 @@ async function handleWebhook(
         typename: payload.data?.__typename,
         stage: payload.data?.stage,
         source: 'hygraph-webhook',
+        websiteHeader: websiteHeader || null,
         timestamp: new Date().toISOString()
       }
     };
