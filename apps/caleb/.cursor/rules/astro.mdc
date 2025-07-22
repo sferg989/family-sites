@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+
+
+# When needing User interation in an .astro file.   THIS Is how to do it
+```astro
+<astro-greet data-message={message}>
+<button>Say hi!</button>
+</astro-greet>
+<script>
+class AstroGreet extends HTMLElement {
+  constructor() {
+    super();
+
+    // Read the message from the data attribute.
+    const message = this.dataset.message;
+    const button = this.querySelector('button');
+    button.addEventListener('click', () => {
+      alert(message);
+    });
+  }
+ connectedCallback() {
+const message = this.dataset.message;
+}
+}
+
+customElements.define('astro-greet', AstroGreet);
+</script>
+```
+
+# Astro Files are formated like this...
+```astro
+---
+// all server code
+interface Props {
+  page: Page;
+}
+
+---
+<!-- CODE TO sent to client -->
+
+```

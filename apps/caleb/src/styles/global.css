@@ -1,0 +1,393 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+
+:root {
+	/* Ocean engineering theme colors */
+	--primary-blue: #006994;     /* Deep ocean blue */
+	--primary-dark: #0a1828;     /* Deep sea floor */
+	--accent-blue: #00d4ff;      /* Bright ocean blue */
+	--accent-teal: #20b2aa;      /* Teal waters */
+	--accent-coral: #ff6b47;     /* Coral accent */
+	--accent-shark: #4a5568;     /* Shark gray */
+	--accent-kelp: #2d5016;      /* Kelp green */
+	
+	/* Supporting colors */
+	--dark-blue: #1a365d;        /* Deep water */
+	--ocean-gray: #2d3748;       /* Ocean sediment */
+	--text-primary: #e2e8f0;     /* Seafoam white */
+	--text-secondary: #a0aec0;   /* Light seafoam */
+	
+	/* Missing variables that are referenced in components */
+	--primary-orange: #ff8c42;   /* Orange accent for links */
+	--accent-orange: #ffb366;    /* Lighter orange for hover states */
+	--accent-color: #00d4ff;     /* Alias for primary accent */
+	--text-color: #e2e8f0;       /* Alias for primary text color */
+	
+	/* Layout */
+	--header-height: 80px;
+	--content-width: min(1200px, 100% - 2rem);
+	--border-radius: 12px;
+	
+	/* Animations */
+	--wave-timing: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/poppins-regular.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/poppins-bold.woff2') format('woff2');
+	font-weight: 700;
+	font-display: swap;
+}
+body {
+	font-family: 'Poppins', sans-serif;
+	margin: 0;
+	padding: 0;
+	background: var(--primary-dark);
+	color: var(--text-primary);
+	line-height: 1.6;
+	font-size: 16px;
+	position: relative;
+	overflow-x: hidden;
+}
+
+/* Ocean depth background with floating particles */
+body::before {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: 
+		/* Floating particles (plankton/debris) */
+		radial-gradient(2px 2px at 20% 20%, var(--accent-teal) 0%, transparent 100%),
+		radial-gradient(3px 3px at 40% 60%, var(--accent-coral) 0%, transparent 100%),
+		radial-gradient(1px 1px at 60% 30%, var(--accent-blue) 0%, transparent 100%),
+		radial-gradient(2px 2px at 80% 70%, var(--accent-teal) 0%, transparent 100%),
+		radial-gradient(3px 3px at 15% 80%, var(--accent-coral) 0%, transparent 100%),
+		radial-gradient(1px 1px at 85% 40%, var(--accent-blue) 0%, transparent 100%),
+		/* Ocean depth gradient */
+		linear-gradient(
+			180deg,
+			rgba(10, 24, 40, 0.95) 0%,
+			rgba(26, 54, 93, 0.98) 50%,
+			rgba(10, 24, 40, 0.99) 100%
+		);
+	background-repeat: repeat;
+	background-size: 400px 400px, 350px 350px, 300px 300px, 450px 450px, 
+					320px 320px, 380px 380px, 100% 100%;
+	animation: oceanFlow 120s linear infinite;
+	z-index: -1;
+}
+
+/* Underwater current effects */
+body::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: 
+		linear-gradient(45deg, rgba(0, 212, 255, 0.1) 0%, transparent 15%, transparent 100%),
+		linear-gradient(135deg, rgba(32, 178, 170, 0.1) 0%, transparent 15%, transparent 100%),
+		linear-gradient(225deg, rgba(255, 107, 71, 0.1) 0%, transparent 15%, transparent 100%),
+		linear-gradient(315deg, rgba(0, 212, 255, 0.1) 0%, transparent 15%, transparent 100%);
+	background-size: 600px 600px;
+	background-repeat: no-repeat;
+	background-position: 
+		calc(50% + 200px) calc(50% - 200px),
+		calc(50% - 200px) calc(50% + 200px),
+		calc(50% + 100px) calc(50% + 300px),
+		calc(50% - 300px) calc(50% - 100px);
+	opacity: 0;
+	animation: currentFlow 12s ease-in-out infinite;
+	z-index: -1;
+}
+
+main {
+	max-width: var(--content-width);
+	margin: 2rem auto;
+	padding: 2rem;
+	background: rgba(10, 24, 40, 0.85);
+	border-radius: var(--border-radius);
+	box-shadow: 
+		0 8px 32px rgba(0, 0, 0, 0.6),
+		0 0 20px rgba(0, 212, 255, 0.2),
+		0 0 40px rgba(32, 178, 170, 0.2);
+	backdrop-filter: blur(12px);
+	position: relative;
+	overflow: hidden;
+	border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+/* Underwater bioluminescence effect */
+main::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: 
+		radial-gradient(
+			ellipse at center,
+			rgba(0, 212, 255, 0.12) 0%,
+			transparent 50%
+		),
+		radial-gradient(
+			ellipse at center,
+			rgba(32, 178, 170, 0.12) 20%,
+			transparent 60%
+		),
+		radial-gradient(
+			circle at center,
+			var(--accent-teal) 1px,
+			transparent 1px
+		) 0 0 / 120px 120px;
+	opacity: 0.4;
+	z-index: -1;
+	animation: bioluminesce 10s ease-in-out infinite;
+	filter: blur(2px);
+}
+
+/* Ocean-themed animations */
+@keyframes oceanFlow {
+	from {
+		background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+	}
+	to {
+		background-position: 400px 400px, -350px 350px, 300px -300px, 
+							-450px 450px, 320px -320px, -380px 380px, 0 0;
+	}
+}
+
+@keyframes currentFlow {
+	0%, 100% {
+		opacity: 0;
+		transform: scale(1);
+	}
+	25% {
+		opacity: 0.3;
+		transform: scale(1.1);
+	}
+	50%, 75% {
+		opacity: 0;
+		transform: scale(1);
+	}
+	90% {
+		opacity: 0.3;
+		transform: scale(1.1);
+	}
+}
+
+@keyframes bioluminesce {
+	0%, 100% {
+		opacity: 0.4;
+		transform: scale(1) rotate(0deg);
+	}
+	50% {
+		opacity: 0.6;
+		transform: scale(1.3) rotate(3deg);
+	}
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+	color: var(--accent-blue);
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 1.5rem 0 1rem;
+}
+
+h1 {
+	font-size: 3.5rem;
+	background: linear-gradient(45deg, var(--primary-blue), var(--accent-teal));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
+
+/* Links */
+a {
+	color: var(--accent-blue);
+	text-decoration: none;
+	transition: all 0.3s var(--wave-timing);
+	position: relative;
+}
+
+a:hover {
+	color: var(--accent-teal);
+	text-shadow: 0 0 8px var(--accent-blue);
+}
+
+/* Images */
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--border-radius);
+	transition: transform 0.3s var(--wave-timing);
+}
+
+img:hover {
+	transform: scale(1.02);
+}
+
+/* Custom elements for ocean interests */
+.wave {
+	display: inline-block;
+	animation: wave 2s var(--wave-timing) infinite;
+}
+
+.shark-fin {
+	display: inline-block;
+	animation: swim 4s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes wave {
+	0%, 100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	25% {
+		transform: translateY(-5px) rotate(2deg);
+	}
+	75% {
+		transform: translateY(5px) rotate(-2deg);
+	}
+}
+
+@keyframes swim {
+	0%, 100% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(10px);
+	}
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	body {
+		font-size: 14px;
+		overflow-x: hidden;
+	}
+
+	main {
+		padding: 0.5rem;
+		margin: 0.5rem;
+		width: calc(100% - 1rem);
+		max-width: 100%;
+	}
+
+	h1 {
+		font-size: 2rem;
+		word-wrap: break-word;
+	}
+
+	.card {
+		padding: 1rem;
+	}
+
+	pre {
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+}
+
+/* Utility classes */
+.text-gradient {
+	background: linear-gradient(45deg, var(--primary-blue), var(--accent-coral));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Update card styles */
+.card {
+	background: rgba(45, 55, 72, 0.9);
+	padding: 1.5rem;
+	border-radius: var(--border-radius);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(0, 212, 255, 0.2);
+	backdrop-filter: blur(8px);
+	transition: transform 0.3s var(--wave-timing);
+}
+
+.card:hover {
+	transform: translateY(-5px) scale(1.02);
+	box-shadow: 
+		0 8px 24px rgba(0, 212, 255, 0.4),
+		0 0 40px rgba(32, 178, 170, 0.3);
+	border-color: rgba(0, 212, 255, 0.5);
+}
+
+/* Button styles */
+button {
+	background: var(--primary-blue);
+	color: white;
+	border: none;
+	padding: 0.8rem 1.5rem;
+	border-radius: var(--border-radius);
+	font-weight: bold;
+	cursor: pointer;
+	transition: all 0.3s var(--wave-timing);
+	box-shadow: 0 0 15px rgba(0, 105, 148, 0.3);
+}
+
+button:hover {
+	background: linear-gradient(45deg, var(--accent-blue), var(--accent-teal));
+	transform: scale(1.05);
+	box-shadow: 
+		0 0 20px rgba(0, 212, 255, 0.6),
+		0 0 40px rgba(32, 178, 170, 0.4);
+}
+
+/* Code blocks */
+code {
+	background: var(--ocean-gray);
+	padding: 0.2em 0.4em;
+	border-radius: 4px;
+	font-size: 0.9em;
+	color: var(--accent-blue);
+}
+
+pre {
+	background: var(--ocean-gray);
+	padding: 1rem;
+	border-radius: var(--border-radius);
+	overflow-wrap: break-word;
+	border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+/* Tables */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1rem 0;
+	background: rgba(45, 55, 72, 0.8);
+}
+
+th, td {
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--primary-blue);
+}
+
+th {
+	background: var(--dark-blue);
+	color: white;
+}

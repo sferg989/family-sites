@@ -1,0 +1,45 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageMeta from '@components/pageMeta.astro';
+import PageBody from '@components/pageBody.astro';
+import PageHero from '@components/pageHero.astro';
+import { PageService } from '../services/pageService';
+import { optimizeImages, type Page } from '@sferg989/astro-utils';
+import Debug from 'astro/components/Debug.astro';
+
+
+export async function getStaticPaths() {
+  const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+  PageService.initialize(endpoint);
+  const { pages } = await PageService.getNavigationPages();
+
+  return pages.map((page: Page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+const { page: fullPage } = await PageService.getPageBySlug(page.slug);
+
+if (fullPage?.body?.html) {
+  fullPage.body.html = await optimizeImages(fullPage.body.html);
+}
+---
+
+<Layout
+  title={fullPage.title}
+  description={fullPage.metaDescription}
+  heroImage={fullPage.heroImage}
+  publishedAt={fullPage.publishedAt}
+  updatedAt={fullPage.updatedAt}
+>
+  <PageMeta
+    title={fullPage.title}
+    description={fullPage.metaDescription}
+    image={fullPage.heroImage?.url || undefined}
+    keywords={fullPage.keywords || undefined}
+  />
+  <PageHero title={fullPage.title} heroImage={fullPage.heroImage} />
+  <PageBody content={fullPage.body} highlights={fullPage.highlights} />
+</Layout>

@@ -2,25 +2,26 @@ name: Site Deploy
 
 on:
   repository_dispatch:
-    types: [molly, micah]
+    types: [molly, micah, caleb]
   workflow_dispatch:
     inputs:
       site:
         description: 'Site to deploy'
         required: false
-        default: 'both'
+        default: 'all'
         type: choice
         options:
-          - both
+          - all
           - molly
           - micah
+          - caleb
 
 jobs:
   deploy-molly:
     if: |
       github.event.action == 'molly' || 
       github.event.inputs.site == 'molly' || 
-      github.event.inputs.site == 'both'
+      github.event.inputs.site == 'all'
     runs-on: ubuntu-latest
     environment: production
     
@@ -57,7 +58,7 @@ jobs:
     if: |
       github.event.action == 'micah' || 
       github.event.inputs.site == 'micah' || 
-      github.event.inputs.site == 'both'
+      github.event.inputs.site == 'all'
     runs-on: ubuntu-latest
     environment: production
     
@@ -88,4 +89,41 @@ jobs:
     - name: Report deployment status
       run: |
         echo "🚀 Deployment of micah-ferguson completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}" 
+
+  deploy-caleb:
+    if: |
+      github.event.action == 'caleb' || 
+      github.event.inputs.site == 'caleb' || 
+      github.event.inputs.site == 'all'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cmd3k49mt1tr907mybbem3cyg/master
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build caleb
+      run: npm run build:caleb
+
+    - name: Deploy caleb
+      run: npm run deploy:caleb
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of caleb completed successfully!"
         echo "Triggered by: ${{ github.event_name }}" 

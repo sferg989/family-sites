@@ -1,0 +1,201 @@
+---
+/* eslint-disable max-len */
+import HeaderLink from './HeaderLink.astro';
+import SocialLinks from './SocialLinks.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<header>
+  <div class="cosmic-background">
+    <div class="stars"></div>
+    <div class="shooting-stars"></div>
+    <div class="nebula"></div>
+  </div>
+  <nav>
+    <h2><a href="/" class="site-title">{SITE_TITLE}</a></h2>
+    <div class="internal-links">
+      <HeaderLink href="/">Home</HeaderLink>
+      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/about">About</HeaderLink>
+    </div>
+    <SocialLinks />
+  </nav>
+</header>
+<style>
+  header {
+    background: rgba(3, 7, 17, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 209, 255, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow:
+      0 0 20px rgba(0, 209, 255, 0.2),
+      0 0 40px rgba(157, 78, 221, 0.2);
+    overflow: hidden;
+  }
+
+  .cosmic-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(3px 3px at 20px 30px, var(--accent-star), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 40px 70px, var(--accent-purple), rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 50px 160px, var(--accent-star), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 90px 40px, var(--accent-nova), rgba(0,0,0,0)),
+      radial-gradient(3px 3px at 130px 80px, var(--accent-star), rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    opacity: 0.3;
+    animation: headerStarTwinkle 4s infinite;
+  }
+
+  .shooting-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(45deg, var(--accent-star) 0%, transparent 15%),
+      linear-gradient(135deg, var(--accent-purple) 0%, transparent 15%);
+    background-size: 200px 200px;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: headerShootingStars 6s linear infinite;
+  }
+
+  .nebula {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(157, 78, 221, 0.1) 0%,
+      rgba(0, 209, 255, 0.1) 50%,
+      transparent 100%
+    );
+    animation: headerNebulaPulse 8s ease-in-out infinite;
+    filter: blur(8px);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--content-width, 1200px);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .site-title {
+    font-size: 2rem;
+    font-weight: bold;
+    text-decoration: none;
+    background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(0, 209, 255, 0.5);
+    transition: all 0.3s var(--bounce-timing);
+    position: relative;
+  }
+
+  .site-title:hover {
+    transform: scale(1.05);
+    text-shadow:
+      0 0 20px rgba(0, 209, 255, 0.8),
+      0 0 40px rgba(157, 78, 221, 0.5);
+  }
+
+  .internal-links a {
+    position: relative;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: bold;
+    transition: all 0.3s var(--bounce-timing);
+  }
+
+  .internal-links a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg,
+      rgba(0, 209, 255, 0.1),
+      rgba(157, 78, 221, 0.1)
+    );
+    transform: skew(-15deg);
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.3s var(--bounce-timing);
+    border: 1px solid rgba(0, 209, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .internal-links a:hover {
+    color: var(--accent-blue);
+    text-shadow:
+      0 0 8px var(--accent-blue),
+      0 0 16px var(--accent-purple);
+    transform: translateY(-2px);
+  }
+
+  .internal-links a:hover::before {
+    opacity: 1;
+    border-color: rgba(0, 209, 255, 0.3);
+    box-shadow:
+      0 0 15px rgba(0, 209, 255, 0.2),
+      0 0 30px rgba(157, 78, 221, 0.2);
+  }
+
+  @keyframes headerStarTwinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes headerShootingStars {
+    0%, 100% {
+      opacity: 0;
+      transform: translateX(100%) translateY(-100%);
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateX(-100%) translateY(100%);
+    }
+  }
+
+  @keyframes headerNebulaPulse {
+    0%, 100% {
+      opacity: 0.2;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
+</style>

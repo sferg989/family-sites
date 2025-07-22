@@ -31,7 +31,8 @@ The dispatcher sends the following event types to GitHub:
 
 - `molly` - Deploy mollyferguson.info only
 - `micah` - Deploy micah-ferguson only  
-- `both` - Deploy both sites (fallback)
+- `caleb` - Deploy caleb only
+- `all` - Deploy all sites (fallback)
 
 ## Configuration
 

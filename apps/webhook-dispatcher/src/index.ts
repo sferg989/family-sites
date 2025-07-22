@@ -5,6 +5,7 @@ import type {
 } from './types';
 
 const MOLLY_HYGRAPH_ID = 'cm04nyf07552w07k4jjp4m99x';
+const CALEB_HYGRAPH_ID = 'cm4ah947ne1z507ln7pxluzwu';
 
 async function handleWebhook(
   request: Request, 
@@ -21,11 +22,13 @@ async function handleWebhook(
     
     if (payload.data?.id === MOLLY_HYGRAPH_ID) {
       eventType = 'molly';
+    } else if (payload.data?.id === CALEB_HYGRAPH_ID) {
+      eventType = 'caleb';
     } else if (payload.data?.id) {
       eventType = 'micah';
     } else {
-      // Default to both if no ID is provided
-      eventType = 'both';
+      // Default to all if no ID is provided
+      eventType = 'all';
     }
     
     console.log(`Determined event type: ${eventType}`);
