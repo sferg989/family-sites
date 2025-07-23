@@ -5,26 +5,24 @@
  */
 
 :root {
-	/* Ocean engineering theme colors */
-	--primary-blue: #006994;     /* Deep ocean blue */
-	--primary-dark: #0a1828;     /* Deep sea floor */
-	--accent-blue: #00d4ff;      /* Bright ocean blue */
-	--accent-teal: #20b2aa;      /* Teal waters */
-	--accent-coral: #ff6b47;     /* Coral accent */
-	--accent-shark: #4a5568;     /* Shark gray */
-	--accent-kelp: #2d5016;      /* Kelp green */
+	/* ORANGE and Shark theme colors */
+	--primary-orange: #ff6b35;      /* Vibrant sunset orange */
+	--primary-dark: #1a1a1a;        /* Shark skin dark */
+	--accent-orange: #ff8c42;       /* Bright orange accent */
+	--accent-coral: #ff9f43;        /* Warm coral orange */
+	--accent-sunset: #ff6348;       /* Deep sunset red-orange */
+	--accent-shark: #4a5568;        /* Shark gray */
+	--accent-fin: #2d3748;          /* Dark shark fin gray */
 	
 	/* Supporting colors */
-	--dark-blue: #1a365d;        /* Deep water */
-	--ocean-gray: #2d3748;       /* Ocean sediment */
-	--text-primary: #e2e8f0;     /* Seafoam white */
-	--text-secondary: #a0aec0;   /* Light seafoam */
+	--dark-orange: #e55039;         /* Deep orange */
+	--shark-gray: #2d3748;          /* Shark body gray */
+	--text-primary: #f7f7f7;        /* Clean white text */
+	--text-secondary: #a0aec0;      /* Light gray text */
 	
-	/* Missing variables that are referenced in components */
-	--primary-orange: #ff8c42;   /* Orange accent for links */
-	--accent-orange: #ffb366;    /* Lighter orange for hover states */
-	--accent-color: #00d4ff;     /* Alias for primary accent */
-	--text-color: #e2e8f0;       /* Alias for primary text color */
+	/* Shark-themed accent colors */
+	--accent-color: #ff6b35;        /* Primary orange for accents */
+	--text-color: #f7f7f7;          /* Clean text color */
 	
 	/* Layout */
 	--header-height: 80px;
@@ -32,7 +30,7 @@
 	--border-radius: 12px;
 	
 	/* Animations */
-	--wave-timing: cubic-bezier(0.4, 0.0, 0.2, 1);
+	--shark-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @font-face {
@@ -59,7 +57,7 @@ body {
 	overflow-x: hidden;
 }
 
-/* Ocean depth background with floating particles */
+/* Orange sunset waters with shark silhouettes */
 body::before {
 	content: '';
 	position: fixed;
@@ -68,28 +66,45 @@ body::before {
 	width: 100%;
 	height: 100%;
 	background: 
-		/* Floating particles (plankton/debris) */
-		radial-gradient(2px 2px at 20% 20%, var(--accent-teal) 0%, transparent 100%),
-		radial-gradient(3px 3px at 40% 60%, var(--accent-coral) 0%, transparent 100%),
-		radial-gradient(1px 1px at 60% 30%, var(--accent-blue) 0%, transparent 100%),
-		radial-gradient(2px 2px at 80% 70%, var(--accent-teal) 0%, transparent 100%),
-		radial-gradient(3px 3px at 15% 80%, var(--accent-coral) 0%, transparent 100%),
-		radial-gradient(1px 1px at 85% 40%, var(--accent-blue) 0%, transparent 100%),
-		/* Ocean depth gradient */
+		/* Floating particles (bubbles/fish) */
+		radial-gradient(2px 2px at 20% 20%, var(--accent-coral) 0%, transparent 100%),
+		radial-gradient(3px 3px at 40% 60%, var(--accent-sunset) 0%, transparent 100%),
+		radial-gradient(1px 1px at 60% 30%, var(--accent-orange) 0%, transparent 100%),
+		radial-gradient(2px 2px at 80% 70%, var(--accent-coral) 0%, transparent 100%),
+		radial-gradient(3px 3px at 15% 80%, var(--accent-sunset) 0%, transparent 100%),
+		radial-gradient(1px 1px at 85% 40%, var(--accent-orange) 0%, transparent 100%),
+		/* Shark fin silhouettes */
+		radial-gradient(
+			ellipse 30px 15px at 10% 20%,
+			var(--accent-shark) 0%,
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 25px 12px at 80% 40%,
+			var(--accent-fin) 0%,
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 35px 18px at 40% 70%,
+			var(--accent-shark) 0%,
+			transparent 70%
+		),
+		/* Orange sunset gradient */
 		linear-gradient(
 			180deg,
-			rgba(10, 24, 40, 0.95) 0%,
-			rgba(26, 54, 93, 0.98) 50%,
-			rgba(10, 24, 40, 0.99) 100%
+			rgba(255, 107, 53, 0.15) 0%,
+			rgba(255, 140, 66, 0.25) 30%,
+			rgba(26, 26, 26, 0.85) 70%,
+			rgba(26, 26, 26, 0.95) 100%
 		);
-	background-repeat: repeat;
+	background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
 	background-size: 400px 400px, 350px 350px, 300px 300px, 450px 450px, 
-					320px 320px, 380px 380px, 100% 100%;
-	animation: oceanFlow 120s linear infinite;
+					320px 320px, 380px 380px, 200px 100px, 200px 100px, 200px 100px, 100% 100%;
+	animation: sharkPatrol 180s linear infinite;
 	z-index: -1;
 }
 
-/* Underwater current effects */
+/* Shark swimming trails and orange currents */
 body::after {
 	content: '';
 	position: fixed;
@@ -98,19 +113,26 @@ body::after {
 	width: 100%;
 	height: 100%;
 	background: 
-		linear-gradient(45deg, rgba(0, 212, 255, 0.1) 0%, transparent 15%, transparent 100%),
-		linear-gradient(135deg, rgba(32, 178, 170, 0.1) 0%, transparent 15%, transparent 100%),
-		linear-gradient(225deg, rgba(255, 107, 71, 0.1) 0%, transparent 15%, transparent 100%),
-		linear-gradient(315deg, rgba(0, 212, 255, 0.1) 0%, transparent 15%, transparent 100%);
-	background-size: 600px 600px;
+		linear-gradient(45deg, rgba(255, 107, 53, 0.15) 0%, transparent 25%, transparent 100%),
+		linear-gradient(135deg, rgba(255, 140, 66, 0.12) 0%, transparent 20%, transparent 100%),
+		linear-gradient(225deg, rgba(255, 99, 72, 0.18) 0%, transparent 30%, transparent 100%),
+		linear-gradient(315deg, rgba(255, 107, 53, 0.15) 0%, transparent 25%, transparent 100%),
+		/* Shark swimming path */
+		radial-gradient(
+			ellipse 100px 20px at 50% 50%,
+			rgba(74, 85, 104, 0.3) 0%,
+			transparent 70%
+		);
+	background-size: 800px 800px, 600px 600px, 700px 700px, 650px 650px, 400px 100px;
 	background-repeat: no-repeat;
 	background-position: 
-		calc(50% + 200px) calc(50% - 200px),
-		calc(50% - 200px) calc(50% + 200px),
-		calc(50% + 100px) calc(50% + 300px),
-		calc(50% - 300px) calc(50% - 100px);
+		calc(50% + 300px) calc(50% - 200px),
+		calc(50% - 250px) calc(50% + 150px),
+		calc(50% + 150px) calc(50% + 250px),
+		calc(50% - 200px) calc(50% - 150px),
+		50% 50%;
 	opacity: 0;
-	animation: currentFlow 12s ease-in-out infinite;
+	animation: sharkCurrents 15s ease-in-out infinite;
 	z-index: -1;
 }
 
@@ -118,19 +140,19 @@ main {
 	max-width: var(--content-width);
 	margin: 2rem auto;
 	padding: 2rem;
-	background: rgba(10, 24, 40, 0.85);
+	background: rgba(26, 26, 26, 0.85);
 	border-radius: var(--border-radius);
 	box-shadow: 
 		0 8px 32px rgba(0, 0, 0, 0.6),
-		0 0 20px rgba(0, 212, 255, 0.2),
-		0 0 40px rgba(32, 178, 170, 0.2);
+		0 0 20px rgba(255, 107, 53, 0.3),
+		0 0 40px rgba(255, 140, 66, 0.2);
 	backdrop-filter: blur(12px);
 	position: relative;
 	overflow: hidden;
-	border: 1px solid rgba(0, 212, 255, 0.3);
+	border: 1px solid rgba(255, 107, 53, 0.4);
 }
 
-/* Underwater bioluminescence effect */
+/* Shark hunting glow effect */
 main::before {
 	content: '';
 	position: absolute;
@@ -141,69 +163,85 @@ main::before {
 	background: 
 		radial-gradient(
 			ellipse at center,
-			rgba(0, 212, 255, 0.12) 0%,
+			rgba(255, 107, 53, 0.15) 0%,
 			transparent 50%
 		),
 		radial-gradient(
 			ellipse at center,
-			rgba(32, 178, 170, 0.12) 20%,
+			rgba(255, 140, 66, 0.12) 20%,
 			transparent 60%
 		),
 		radial-gradient(
 			circle at center,
-			var(--accent-teal) 1px,
+			var(--accent-coral) 1px,
 			transparent 1px
 		) 0 0 / 120px 120px;
 	opacity: 0.4;
 	z-index: -1;
-	animation: bioluminesce 10s ease-in-out infinite;
+	animation: sharkGlow 12s ease-in-out infinite;
 	filter: blur(2px);
 }
 
-/* Ocean-themed animations */
-@keyframes oceanFlow {
-	from {
-		background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+/* Shark-themed animations */
+@keyframes sharkPatrol {
+	0% {
+		background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 
+						   -200px 20%, 800px 40%, 400px 70%, 0 0;
 	}
-	to {
+	33% {
 		background-position: 400px 400px, -350px 350px, 300px -300px, 
-							-450px 450px, 320px -320px, -380px 380px, 0 0;
+							-450px 450px, 320px -320px, -380px 380px,
+							600px 25%, -100px 45%, 200px 65%, 0 0;
+	}
+	66% {
+		background-position: -200px 200px, 350px -350px, -300px 300px, 
+							450px -450px, -320px 320px, 380px -380px,
+							800px 30%, 300px 50%, -200px 70%, 0 0;
+	}
+	100% {
+		background-position: 400px 400px, -350px 350px, 300px -300px, 
+							-450px 450px, 320px -320px, -380px 380px,
+							-200px 35%, 1000px 55%, 600px 75%, 0 0;
 	}
 }
 
-@keyframes currentFlow {
+@keyframes sharkCurrents {
 	0%, 100% {
 		opacity: 0;
-		transform: scale(1);
+		transform: scale(1) translateX(0);
 	}
 	25% {
-		opacity: 0.3;
-		transform: scale(1.1);
+		opacity: 0.4;
+		transform: scale(1.1) translateX(20px);
 	}
-	50%, 75% {
-		opacity: 0;
-		transform: scale(1);
+	50% {
+		opacity: 0.2;
+		transform: scale(1) translateX(-10px);
 	}
-	90% {
+	75% {
 		opacity: 0.3;
-		transform: scale(1.1);
+		transform: scale(1.05) translateX(15px);
 	}
 }
 
-@keyframes bioluminesce {
+@keyframes sharkGlow {
 	0%, 100% {
-		opacity: 0.4;
+		opacity: 0.3;
 		transform: scale(1) rotate(0deg);
 	}
-	50% {
-		opacity: 0.6;
-		transform: scale(1.3) rotate(3deg);
+	33% {
+		opacity: 0.5;
+		transform: scale(1.2) rotate(2deg);
+	}
+	66% {
+		opacity: 0.4;
+		transform: scale(1.1) rotate(-1deg);
 	}
 }
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
-	color: var(--accent-blue);
+	color: var(--accent-orange);
 	font-weight: 700;
 	line-height: 1.2;
 	margin: 1.5rem 0 1rem;
@@ -211,23 +249,23 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
 	font-size: 3.5rem;
-	background: linear-gradient(45deg, var(--primary-blue), var(--accent-teal));
+	background: linear-gradient(45deg, var(--primary-orange), var(--accent-coral));
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
-	text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+	text-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
 }
 
 /* Links */
 a {
-	color: var(--accent-blue);
+	color: var(--accent-orange);
 	text-decoration: none;
-	transition: all 0.3s var(--wave-timing);
+	transition: all 0.3s var(--shark-timing);
 	position: relative;
 }
 
 a:hover {
-	color: var(--accent-teal);
-	text-shadow: 0 0 8px var(--accent-blue);
+	color: var(--accent-coral);
+	text-shadow: 0 0 8px var(--accent-orange);
 }
 
 /* Images */
@@ -235,25 +273,43 @@ img {
 	max-width: 100%;
 	height: auto;
 	border-radius: var(--border-radius);
-	transition: transform 0.3s var(--wave-timing);
+	transition: transform 0.3s var(--shark-timing);
 }
 
 img:hover {
 	transform: scale(1.02);
 }
 
-/* Custom elements for ocean interests */
+/* Custom elements for shark interests */
 .wave {
 	display: inline-block;
-	animation: wave 2s var(--wave-timing) infinite;
+	animation: wave 2s var(--shark-timing) infinite;
 }
 
 .shark-fin {
 	display: inline-block;
-	animation: swim 4s ease-in-out infinite;
+	animation: sharkSwim 6s ease-in-out infinite;
 }
 
-/* Animations */
+.apex-predator {
+	color: var(--accent-orange);
+	font-weight: bold;
+	text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+.shark-bite {
+	background: linear-gradient(45deg, var(--accent-orange), var(--accent-coral));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	font-weight: bold;
+}
+
+.orange-glow {
+	box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+	border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+/* Shark-themed element animations */
 @keyframes wave {
 	0%, 100% {
 		transform: translateY(0) rotate(0deg);
@@ -266,12 +322,18 @@ img:hover {
 	}
 }
 
-@keyframes swim {
+@keyframes sharkSwim {
 	0%, 100% {
-		transform: translateX(0);
+		transform: translateX(0) rotateY(0deg);
+	}
+	25% {
+		transform: translateX(15px) rotateY(5deg);
 	}
 	50% {
-		transform: translateX(10px);
+		transform: translateX(20px) rotateY(0deg);
+	}
+	75% {
+		transform: translateX(10px) rotateY(-3deg);
 	}
 }
 
@@ -312,66 +374,66 @@ img:hover {
 
 /* Utility classes */
 .text-gradient {
-	background: linear-gradient(45deg, var(--primary-blue), var(--accent-coral));
+	background: linear-gradient(45deg, var(--primary-orange), var(--accent-coral));
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
-/* Update card styles */
+/* Update card styles for shark theme */
 .card {
 	background: rgba(45, 55, 72, 0.9);
 	padding: 1.5rem;
 	border-radius: var(--border-radius);
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-	border: 1px solid rgba(0, 212, 255, 0.2);
+	border: 1px solid rgba(255, 107, 53, 0.3);
 	backdrop-filter: blur(8px);
-	transition: transform 0.3s var(--wave-timing);
+	transition: transform 0.3s var(--shark-timing);
 }
 
 .card:hover {
 	transform: translateY(-5px) scale(1.02);
 	box-shadow: 
-		0 8px 24px rgba(0, 212, 255, 0.4),
-		0 0 40px rgba(32, 178, 170, 0.3);
-	border-color: rgba(0, 212, 255, 0.5);
+		0 8px 24px rgba(255, 107, 53, 0.5),
+		0 0 40px rgba(255, 140, 66, 0.4);
+	border-color: rgba(255, 107, 53, 0.6);
 }
 
 /* Button styles */
 button {
-	background: var(--primary-blue);
+	background: var(--primary-orange);
 	color: white;
 	border: none;
 	padding: 0.8rem 1.5rem;
 	border-radius: var(--border-radius);
 	font-weight: bold;
 	cursor: pointer;
-	transition: all 0.3s var(--wave-timing);
-	box-shadow: 0 0 15px rgba(0, 105, 148, 0.3);
+	transition: all 0.3s var(--shark-timing);
+	box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
 }
 
 button:hover {
-	background: linear-gradient(45deg, var(--accent-blue), var(--accent-teal));
+	background: linear-gradient(45deg, var(--accent-orange), var(--accent-coral));
 	transform: scale(1.05);
 	box-shadow: 
-		0 0 20px rgba(0, 212, 255, 0.6),
-		0 0 40px rgba(32, 178, 170, 0.4);
+		0 0 20px rgba(255, 107, 53, 0.7),
+		0 0 40px rgba(255, 140, 66, 0.5);
 }
 
 /* Code blocks */
 code {
-	background: var(--ocean-gray);
+	background: var(--shark-gray);
 	padding: 0.2em 0.4em;
 	border-radius: 4px;
 	font-size: 0.9em;
-	color: var(--accent-blue);
+	color: var(--accent-orange);
 }
 
 pre {
-	background: var(--ocean-gray);
+	background: var(--shark-gray);
 	padding: 1rem;
 	border-radius: var(--border-radius);
 	overflow-wrap: break-word;
-	border: 1px solid rgba(0, 212, 255, 0.2);
+	border: 1px solid rgba(255, 107, 53, 0.3);
 }
 
 /* Tables */
@@ -384,10 +446,10 @@ table {
 
 th, td {
 	padding: 0.75rem;
-	border-bottom: 1px solid var(--primary-blue);
+	border-bottom: 1px solid var(--primary-orange);
 }
 
 th {
-	background: var(--dark-blue);
+	background: var(--dark-orange);
 	color: white;
 }

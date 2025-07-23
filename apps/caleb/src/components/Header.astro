@@ -6,10 +6,10 @@ import { SITE_TITLE } from '../consts';
 ---
 
 <header>
-  <div class="cosmic-background">
-    <div class="stars"></div>
-    <div class="shooting-stars"></div>
-    <div class="nebula"></div>
+  <div class="shark-background">
+    <div class="sunset-glow"></div>
+    <div class="shark-fins"></div>
+    <div class="orange-currents"></div>
   </div>
   <nav>
     <h2><a href="/" class="site-title">{SITE_TITLE}</a></h2>
@@ -23,21 +23,21 @@ import { SITE_TITLE } from '../consts';
 </header>
 <style>
   header {
-    background: rgba(3, 7, 17, 0.8);
+    background: rgba(26, 26, 26, 0.85);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 209, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 107, 53, 0.4);
     position: sticky;
     top: 0;
     z-index: 100;
     padding: 1rem;
     margin-bottom: 2rem;
     box-shadow:
-      0 0 20px rgba(0, 209, 255, 0.2),
-      0 0 40px rgba(157, 78, 221, 0.2);
+      0 0 20px rgba(255, 107, 53, 0.3),
+      0 0 40px rgba(255, 140, 66, 0.2);
     overflow: hidden;
   }
 
-  .cosmic-background {
+  .shark-background {
     position: absolute;
     top: 0;
     left: 0;
@@ -46,40 +46,40 @@ import { SITE_TITLE } from '../consts';
     overflow: hidden;
   }
 
-  .stars {
+  .sunset-glow {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-image:
-      radial-gradient(3px 3px at 20px 30px, var(--accent-star), rgba(0,0,0,0)),
-      radial-gradient(4px 4px at 40px 70px, var(--accent-purple), rgba(0,0,0,0)),
-      radial-gradient(2px 2px at 50px 160px, var(--accent-star), rgba(0,0,0,0)),
-      radial-gradient(4px 4px at 90px 40px, var(--accent-nova), rgba(0,0,0,0)),
-      radial-gradient(3px 3px at 130px 80px, var(--accent-star), rgba(0,0,0,0));
+      radial-gradient(3px 3px at 20px 30px, var(--accent-coral), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 40px 70px, var(--accent-sunset), rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 50px 160px, var(--accent-orange), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 90px 40px, var(--accent-coral), rgba(0,0,0,0)),
+      radial-gradient(3px 3px at 130px 80px, var(--accent-sunset), rgba(0,0,0,0));
     background-repeat: repeat;
     background-size: 250px 250px;
-    opacity: 0.3;
-    animation: headerStarTwinkle 4s infinite;
+    opacity: 0.4;
+    animation: headerSunsetGlow 6s infinite;
   }
 
-  .shooting-stars {
+  .shark-fins {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background:
-      linear-gradient(45deg, var(--accent-star) 0%, transparent 15%),
-      linear-gradient(135deg, var(--accent-purple) 0%, transparent 15%);
-    background-size: 200px 200px;
+      radial-gradient(ellipse 40px 20px at 20% 60%, var(--accent-shark) 0%, transparent 70%),
+      radial-gradient(ellipse 35px 18px at 80% 40%, var(--accent-fin) 0%, transparent 70%);
+    background-size: 300px 200px, 250px 180px;
     background-repeat: no-repeat;
     opacity: 0;
-    animation: headerShootingStars 6s linear infinite;
+    animation: headerSharkPatrol 8s linear infinite;
   }
 
-  .nebula {
+  .orange-currents {
     position: absolute;
     top: -50%;
     left: -50%;
@@ -87,11 +87,11 @@ import { SITE_TITLE } from '../consts';
     height: 200%;
     background: radial-gradient(
       ellipse at center,
-      rgba(157, 78, 221, 0.1) 0%,
-      rgba(0, 209, 255, 0.1) 50%,
+      rgba(255, 107, 53, 0.12) 0%,
+      rgba(255, 140, 66, 0.08) 50%,
       transparent 100%
     );
-    animation: headerNebulaPulse 8s ease-in-out infinite;
+    animation: headerOrangeFlow 10s ease-in-out infinite;
     filter: blur(8px);
   }
 
@@ -109,19 +109,19 @@ import { SITE_TITLE } from '../consts';
     font-size: 2rem;
     font-weight: bold;
     text-decoration: none;
-    background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+    background: linear-gradient(45deg, var(--accent-orange), var(--accent-coral));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px rgba(0, 209, 255, 0.5);
-    transition: all 0.3s var(--bounce-timing);
+    text-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
+    transition: all 0.3s var(--shark-timing);
     position: relative;
   }
 
   .site-title:hover {
     transform: scale(1.05);
     text-shadow:
-      0 0 20px rgba(0, 209, 255, 0.8),
-      0 0 40px rgba(157, 78, 221, 0.5);
+      0 0 20px rgba(255, 107, 53, 0.8),
+      0 0 40px rgba(255, 140, 66, 0.6);
   }
 
   .internal-links a {
@@ -131,7 +131,7 @@ import { SITE_TITLE } from '../consts';
     text-decoration: none;
     color: var(--text-primary);
     font-weight: bold;
-    transition: all 0.3s var(--bounce-timing);
+    transition: all 0.3s var(--shark-timing);
   }
 
   .internal-links a::before {
@@ -139,63 +139,75 @@ import { SITE_TITLE } from '../consts';
     position: absolute;
     inset: 0;
     background: linear-gradient(45deg,
-      rgba(0, 209, 255, 0.1),
-      rgba(157, 78, 221, 0.1)
+      rgba(255, 107, 53, 0.1),
+      rgba(255, 140, 66, 0.1)
     );
     transform: skew(-15deg);
     z-index: -1;
     opacity: 0;
-    transition: all 0.3s var(--bounce-timing);
-    border: 1px solid rgba(0, 209, 255, 0.1);
+    transition: all 0.3s var(--shark-timing);
+    border: 1px solid rgba(255, 107, 53, 0.1);
     border-radius: 4px;
   }
 
   .internal-links a:hover {
-    color: var(--accent-blue);
+    color: var(--accent-orange);
     text-shadow:
-      0 0 8px var(--accent-blue),
-      0 0 16px var(--accent-purple);
+      0 0 8px var(--accent-orange),
+      0 0 16px var(--accent-coral);
     transform: translateY(-2px);
   }
 
   .internal-links a:hover::before {
     opacity: 1;
-    border-color: rgba(0, 209, 255, 0.3);
+    border-color: rgba(255, 107, 53, 0.4);
     box-shadow:
-      0 0 15px rgba(0, 209, 255, 0.2),
-      0 0 30px rgba(157, 78, 221, 0.2);
+      0 0 15px rgba(255, 107, 53, 0.3),
+      0 0 30px rgba(255, 140, 66, 0.2);
   }
 
-  @keyframes headerStarTwinkle {
+  @keyframes headerSunsetGlow {
     0%, 100% {
-      opacity: 0.3;
+      opacity: 0.4;
       transform: scale(1);
     }
     50% {
-      opacity: 0.6;
-      transform: scale(1.2);
+      opacity: 0.7;
+      transform: scale(1.1);
     }
   }
 
-  @keyframes headerShootingStars {
-    0%, 100% {
+  @keyframes headerSharkPatrol {
+    0% {
       opacity: 0;
-      transform: translateX(100%) translateY(-100%);
+      background-position: -100px 60%, 300px 40%;
     }
-    50% {
-      opacity: 0.5;
-      transform: translateX(-100%) translateY(100%);
-    }
-  }
-
-  @keyframes headerNebulaPulse {
-    0%, 100% {
-      opacity: 0.2;
-      transform: scale(1) rotate(0deg);
+    25% {
+      opacity: 0.6;
+      background-position: 200px 65%, 500px 45%;
     }
     50% {
       opacity: 0.3;
-      transform: scale(1.1) rotate(5deg);
+      background-position: 500px 70%, 800px 50%;
+    }
+    75% {
+      opacity: 0.6;
+      background-position: 800px 55%, 1100px 35%;
+    }
+    100% {
+      opacity: 0;
+      background-position: 1100px 60%, 1400px 40%;
+    }
+  }
+
+  @keyframes headerOrangeFlow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.1) rotate(3deg);
     }
   }
 </style>

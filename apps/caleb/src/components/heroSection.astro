@@ -110,7 +110,8 @@ const isPortrait = aspectRatio < 1;
     border-radius: 20px;
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.1),
-      0 0 0 10px var(--accent-color);
+      0 0 0 10px var(--accent-color),
+      0 0 40px rgba(255, 107, 53, 0.3);
   }
 
   .image-content {
@@ -121,9 +122,10 @@ const isPortrait = aspectRatio < 1;
     overflow: hidden;
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.1),
-      0 0 0 10px var(--accent-color);
+      0 0 0 10px var(--accent-color),
+      0 0 40px rgba(255, 107, 53, 0.3);
     will-change: transform;
-    transition: transform 0.3s;
+    transition: transform 0.3s var(--shark-timing);
   }
 
   .image-content.portrait {
@@ -157,7 +159,8 @@ const isPortrait = aspectRatio < 1;
     .image-content {
       box-shadow:
         0 5px 15px rgba(0, 0, 0, 0.1),
-        0 0 0 5px var(--accent-color);
+        0 0 0 5px var(--accent-color),
+        0 0 20px rgba(255, 107, 53, 0.3);
     }
 
     .image-content.portrait {
@@ -168,5 +171,9 @@ const isPortrait = aspectRatio < 1;
   .media-content:hover,
   .image-content:hover {
     transform: scale(1.02);
+    box-shadow:
+      0 15px 40px rgba(0, 0, 0, 0.2),
+      0 0 0 10px var(--accent-color),
+      0 0 60px rgba(255, 107, 53, 0.5);
   }
 </style>

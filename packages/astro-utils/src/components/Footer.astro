@@ -7,17 +7,29 @@ interface Props {
   name: string;
   publishedDate?: Date | null | undefined;
   updatedDate?: Date | null | undefined;
+  theme?: 'cosmic' | 'shark' | string;
 }
 
-const { name, publishedDate, updatedDate } = Astro.props;
+const { name, publishedDate, updatedDate, theme = 'cosmic' } = Astro.props;
 const today = new Date();
+const isSharkTheme = theme === 'shark';
 ---
 
-<footer>
-  <div class="cosmic-background">
-    <div class="stars"></div>
-    <div class="shooting-stars"></div>
-    <div class="nebula"></div>
+<footer class:list={[{ 'shark-theme': isSharkTheme }]}>
+  <div class="background-effects">
+    {isSharkTheme ? (
+      <>
+        <div class="sunset-particles"></div>
+        <div class="shark-fins"></div>
+        <div class="orange-flow"></div>
+      </>
+    ) : (
+      <>
+        <div class="stars"></div>
+        <div class="shooting-stars"></div>
+        <div class="nebula"></div>
+      </>
+    )}
   </div>
   <div class="footer-content">
     <p class="copyright">&copy; {today.getFullYear()} {name}. All rights reserved.</p>
@@ -55,7 +67,16 @@ const today = new Date();
       0 0 60px rgba(157, 78, 221, 0.3);
   }
 
-  .cosmic-background {
+  /* Shark theme overrides */
+  footer.shark-theme {
+    background: rgba(26, 26, 26, 0.85);
+    border-top: 1px solid rgba(255, 107, 53, 0.4);
+    box-shadow:
+      0 0 30px rgba(255, 107, 53, 0.4),
+      0 0 60px rgba(255, 140, 66, 0.3);
+  }
+
+  .background-effects {
     position: absolute;
     top: 0;
     left: 0;
@@ -64,6 +85,7 @@ const today = new Date();
     overflow: hidden;
   }
 
+  /* Cosmic theme background effects */
   .stars {
     position: absolute;
     top: 0;
@@ -113,6 +135,56 @@ const today = new Date();
     filter: blur(8px);
   }
 
+  /* Shark theme background effects */
+  .sunset-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(4px 4px at 20px 30px, var(--accent-coral), rgba(0,0,0,0)),
+      radial-gradient(5px 5px at 40px 70px, var(--accent-sunset), rgba(0,0,0,0)),
+      radial-gradient(3px 3px at 50px 160px, var(--accent-orange), rgba(0,0,0,0)),
+      radial-gradient(5px 5px at 90px 40px, var(--accent-coral), rgba(0,0,0,0)),
+      radial-gradient(4px 4px at 130px 80px, var(--accent-sunset), rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 250px 250px;
+    opacity: 0.5;
+    animation: footerSunsetShimmer 5s infinite;
+  }
+
+  .shark-fins {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(ellipse 40px 20px at 20% 60%, var(--accent-shark) 0%, transparent 70%),
+      radial-gradient(ellipse 35px 18px at 80% 40%, var(--accent-fin) 0%, transparent 70%);
+    background-size: 300px 200px, 250px 180px;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: footerSharkPatrol 8s linear infinite;
+  }
+
+  .orange-flow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(255, 107, 53, 0.15) 0%,
+      rgba(255, 140, 66, 0.12) 50%,
+      transparent 100%
+    );
+    animation: footerOrangeFlow 10s ease-in-out infinite;
+    filter: blur(8px);
+  }
+
   .footer-content {
     position: relative;
     z-index: 1;
@@ -126,6 +198,13 @@ const today = new Date();
       0 0 30px rgba(157, 78, 221, 0.3);
     margin-bottom: 1rem;
     font-weight: bold;
+  }
+
+  /* Shark theme copyright styling */
+  footer.shark-theme .copyright {
+    text-shadow:
+      0 0 15px rgba(255, 107, 53, 0.6),
+      0 0 30px rgba(255, 140, 66, 0.4);
   }
 
   .date {
@@ -155,6 +234,17 @@ const today = new Date();
     gap: 0.5rem;
   }
 
+  /* Shark theme date styling */
+  footer.shark-theme .date-info {
+    background: linear-gradient(45deg,
+      rgba(255, 107, 53, 0.15),
+      rgba(255, 140, 66, 0.15)
+    );
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    transition: all 0.3s var(--shark-timing);
+  }
+
   .date-info:hover {
     border-color: rgba(0, 209, 255, 0.4);
     box-shadow:
@@ -167,6 +257,18 @@ const today = new Date();
     );
   }
 
+  /* Shark theme date hover */
+  footer.shark-theme .date-info:hover {
+    border-color: rgba(255, 107, 53, 0.5);
+    box-shadow:
+      0 0 20px rgba(255, 107, 53, 0.5),
+      0 0 40px rgba(255, 140, 66, 0.4);
+    background: linear-gradient(45deg,
+      rgba(255, 107, 53, 0.2),
+      rgba(255, 140, 66, 0.2)
+    );
+  }
+
   .date-separator {
     opacity: 0.7;
     font-weight: bold;
@@ -176,6 +278,7 @@ const today = new Date();
     font-style: italic;
   }
 
+  /* Cosmic theme animations */
   @keyframes footerStarTwinkle {
     0%, 100% {
       opacity: 0.4;
@@ -206,6 +309,52 @@ const today = new Date();
     50% {
       opacity: 0.5;
       transform: scale(1.2) rotate(5deg);
+    }
+  }
+
+  /* Shark theme animations */
+  @keyframes footerSunsetShimmer {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes footerSharkPatrol {
+    0% {
+      opacity: 0;
+      background-position: -100px 60%, 300px 40%;
+    }
+    25% {
+      opacity: 0.6;
+      background-position: 200px 65%, 500px 45%;
+    }
+    50% {
+      opacity: 0.3;
+      background-position: 500px 70%, 800px 50%;
+    }
+    75% {
+      opacity: 0.6;
+      background-position: 800px 55%, 1100px 35%;
+    }
+    100% {
+      opacity: 0;
+      background-position: 1100px 60%, 1400px 40%;
+    }
+  }
+
+  @keyframes footerOrangeFlow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.2) rotate(3deg);
     }
   }
 </style> 
