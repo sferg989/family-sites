@@ -1,0 +1,96 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  keywords?: string;
+  canonicalPath?: string;
+  author?: string;
+  siteName: string;
+  siteUrl: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  type?: 'website' | 'article';
+  locale?: string;
+}
+
+const {
+  title,
+  description,
+  image,
+  keywords,
+  canonicalPath = Astro.url.pathname,
+  author = '',
+  siteName,
+  siteUrl,
+  publishedAt,
+  updatedAt,
+  type = 'website',
+  locale = 'en'
+} = Astro.props;
+
+const canonicalURL = new URL(canonicalPath, siteUrl);
+const fullImageUrl = image ? new URL(image, siteUrl).toString() : undefined;
+
+// Generate JSON-LD structured data
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': type === 'article' ? 'Article' : 'WebSite',
+  name: title,
+  description: description,
+  url: canonicalURL.toString(),
+  ...(fullImageUrl && { image: fullImageUrl }),
+  ...(author && { author: { '@type': 'Person', name: author } }),
+  ...(publishedAt && { datePublished: publishedAt }),
+  ...(updatedAt && { dateModified: updatedAt }),
+  ...(type === 'website' && {
+    publisher: {
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl
+    }
+  })
+};
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+{keywords && <meta name="keywords" content={keywords} />}
+{author && <meta name="author" content={author} />}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={locale} />
+{fullImageUrl && <meta property="og:image" content={fullImageUrl} />}
+{fullImageUrl && <meta property="og:image:alt" content={title} />}
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalURL} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+{fullImageUrl && <meta property="twitter:image" content={fullImageUrl} />}
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<!-- Performance Optimizations -->
+<meta http-equiv="x-dns-prefetch-control" content="on" />
+
+<!-- Preconnect to critical domains -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="dns-prefetch" href="https://fonts.gstatic.com" /> 

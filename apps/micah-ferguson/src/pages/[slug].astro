@@ -1,6 +1,5 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import PageMeta from '@components/pageMeta.astro';
 import PageBody from '@components/pageBody.astro';
 import PageHero from '@components/pageHero.astro';
 import { PageService } from '../services/pageService';
@@ -33,13 +32,9 @@ if (fullPage?.body?.html) {
   heroImage={fullPage.heroImage}
   publishedAt={fullPage.publishedAt}
   updatedAt={fullPage.updatedAt}
+  keywords={fullPage.keywords}
+  type="article"
 >
-  <PageMeta
-    title={fullPage.title}
-    description={fullPage.metaDescription}
-    image={fullPage.heroImage?.url || undefined}
-    keywords={fullPage.keywords || undefined}
-  />
   <PageHero title={fullPage.title} heroImage={fullPage.heroImage} />
   <PageBody content={fullPage.body} highlights={fullPage.highlights} />
 </Layout>

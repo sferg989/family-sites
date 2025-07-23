@@ -2,26 +2,30 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
-import { SITE_TITLE } from '../consts';
+import { SEOHead } from '@sferg989/astro-utils';
+import { SITE_TITLE, SITE_URL } from '../consts';
+
 interface Props {
   title: string
   description: string
   image?: string | undefined
   keywords?: string | undefined
+  publishedAt?: string
+  updatedAt?: string
+  type?: 'website' | 'article'
 }
-
-// Provide a fallback URL if Astro.site is not defined
-const canonicalURL = new URL(
-  Astro.url.pathname,
-  Astro.site ?? SITE_TITLE
-);
 
 const {
   title,
   description,
   image,
-  keywords
+  keywords,
+  publishedAt,
+  updatedAt,
+  type = 'website'
 } = Astro.props;
+
+const pageTitle = `${title} | ${SITE_TITLE}`;
 ---
 
 <!-- Critical CSS inlined for immediate rendering -->
@@ -58,15 +62,24 @@ const {
   }
 </style>
 
-<!-- Global Metadata -->
-<meta charset='utf-8' />
-<meta name='viewport' content='width=device-width,initial-scale=1' />
-<link rel='icon' type='image/svg+xml' href='/favicon.svg' />
-<meta name='generator' content={Astro.generator} />
+<!-- SEO Head Component -->
+<SEOHead
+  title={pageTitle}
+  description={description}
+  {...(image && { image })}
+  {...(keywords && { keywords })}
+  author="Micah Ferguson"
+  siteName={SITE_TITLE}
+  siteUrl={SITE_URL}
+  {...(publishedAt && { publishedAt })}
+  {...(updatedAt && { updatedAt })}
+  type={type}
+/>
 
-<!-- Preconnect to critical domains first -->
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+<!-- Site-specific favicon and theme -->
+<link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#030711" />
 
 <!-- Critical font preloads with higher priority -->
 <link
@@ -84,42 +97,10 @@ const {
   crossorigin
 />
 
-<!-- CSS is handled by Astro's built-in bundling -->
-
-<!-- Canonical URL -->
-<link rel='canonical' href={canonicalURL} />
-
-<!-- Primary Meta Tags -->
-<title>{title}</title>
-<meta name='title' content={title} />
-<meta name='description' content={description} />
-{keywords && <meta name='keywords' content={keywords} />}
-
-<!-- Open Graph / Facebook -->
-<meta property='og:type' content='website' />
-<meta property='og:url' content={Astro.url} />
-<meta property='og:title' content={title} />
-<meta property='og:description' content={description} />
-{image && <meta property='og:image' content={image} />}
-
-<!-- Twitter -->
-<meta property='twitter:card' content='summary_large_image' />
-<meta property='twitter:url' content={Astro.url} />
-<meta property='twitter:title' content={title} />
-<meta property='twitter:description' content={description} />
-{image && <meta property='twitter:image' content={image} />}
-
-<!-- Performance Optimizations -->
-<meta http-equiv="x-dns-prefetch-control" content="on" />
-
 <!-- Resource hints for critical resources -->
 <link rel="modulepreload" href="/src/pages/index.astro" />
 <link rel="modulepreload" href="/src/components/Header.astro" />
 <link rel="prefetch" href="/src/components/Footer.astro" />
-
-<!-- Optimize for Core Web Vitals -->
-<meta name="color-scheme" content="dark" />
-<meta name="theme-color" content="#030711" />
 
 <!-- Performance optimizations -->
 <script is:inline>
