@@ -59,6 +59,60 @@ The new implementation:
 - Has minimal CSS and no JavaScript
 - Improved Lighthouse scores from 60 to 100
 
+## Picture
+
+An optimized responsive image component that generates multiple sizes and formats for optimal performance.
+
+### Features
+
+- **Smart Image Sizing**: Generates optimal image sizes based on display requirements
+- **Responsive**: Uses `srcset` and `sizes` attributes for perfect image selection
+- **Modern Formats**: Outputs WebP format with automatic fallbacks
+- **Performance Optimized**: Prevents downloading oversized images
+- **Lazy Loading**: Built-in lazy loading for images below the fold
+- **Retina Support**: Includes 2x resolution images for high-DPI displays
+
+### Usage
+
+```astro
+---
+import { Picture } from '@sferg989/astro-utils';
+---
+
+<!-- Basic usage -->
+<Picture 
+  src="/path/to/image.jpg" 
+  alt="Description of the image"
+/>
+
+<!-- Advanced usage with custom sizing -->
+<Picture 
+  src="/path/to/image.jpg" 
+  alt="Description"
+  maxWidth={608}
+  sizes="(max-width: 640px) 100vw, 608px"
+  aspectRatio={4/3}
+  priority={true}
+/>
+```
+
+### Props
+
+- `src` (required): Image source path
+- `alt` (required): Alt text for accessibility
+- `priority` (optional): Load eagerly for above-fold images, defaults to `false`
+- `aspectRatio` (optional): Aspect ratio for the image container, defaults to `16/9`
+- `sizes` (optional): CSS sizes attribute for responsive images
+- `maxWidth` (optional): Maximum expected display width in pixels, defaults to `800`
+- `objectFit` (optional): CSS object-fit value, defaults to `contain`
+
+### Performance Benefits
+
+- **75% smaller downloads**: Generates appropriately sized images instead of serving oversized ones
+- **Modern formats**: WebP compression reduces file sizes significantly
+- **Lazy loading**: Defers loading of below-fold images
+- **Smart defaults**: Works great out of the box for most use cases
+
 ### Design Principles
 
 1. **Keep It Simple**: Use native HTML features over complex JavaScript

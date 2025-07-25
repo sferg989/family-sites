@@ -1,6 +1,7 @@
 // Export components
 export { default as Footer } from './src/components/Footer.astro';
 export { default as FormattedDate } from './src/components/FormattedDate.astro';
+export { default as Picture } from './src/components/Picture.astro';
 export { default as SocialLinks } from './src/components/SocialLinks.astro';
 export { default as VideoDisplay } from './src/components/VideoDisplay.astro';
 export { default as SEOHead } from './src/components/SEOHead.astro';

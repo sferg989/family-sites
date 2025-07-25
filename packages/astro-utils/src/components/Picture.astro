@@ -1,5 +1,4 @@
 ---
-
 import { getImage } from 'astro:assets';
 
 interface Props {
@@ -8,6 +7,8 @@ interface Props {
   priority?: boolean;
   aspectRatio?: number;
   objectFit?: 'cover' | 'contain';
+  sizes?: string; // New prop to specify actual display sizes
+  maxWidth?: number; // Maximum expected display width
 }
 
 const {
@@ -15,54 +16,62 @@ const {
   alt,
   priority = false,
   aspectRatio = 16/9,
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  maxWidth = 800, // Default max width for most content images
 } = Astro.props;
 
 // Function to calculate dimensions while maintaining aspect ratio
 const calculateDimensions = (baseWidth: number, targetAspectRatio: number) => {
-  // For portrait images (aspect ratio < 1), we'll use height as the base
   if (targetAspectRatio < 1) {
     const height = baseWidth;
     const width = Math.round(height * targetAspectRatio);
     return { width, height };
   }
-  // For landscape images, use width as the base
   const width = baseWidth;
   const height = Math.round(width / targetAspectRatio);
   return { width, height };
 };
 
-const mobileImg = await getImage({
-  src: src,
-  ...calculateDimensions(640, aspectRatio),
-  format: 'webp',
-  quality: 80
-});
+// Generate multiple image sizes based on common display scenarios
+const imageSizes = [320, 480, 640, 800, 1024, 1280];
+const relevantSizes = imageSizes.filter(size => size <= maxWidth * 2); // Include 2x for retina
 
-const tabletImg = await getImage({
-  src: src,
-  ...calculateDimensions(1024, aspectRatio),
-  format: 'webp',
-  quality: 80
-});
+const images = await Promise.all(
+  relevantSizes.map(async (width) => {
+    const img = await getImage({
+      src: src,
+      ...calculateDimensions(width, aspectRatio),
+      format: 'webp',
+      quality: width <= 640 ? 85 : 80, // Slightly higher quality for smaller images
+    });
+    return {
+      ...img,
+      width: width,
+    };
+  })
+);
 
-const desktopImg = await getImage({
-  src: src,
-  ...calculateDimensions(1920, aspectRatio),
-  format: 'webp',
-  quality: 80
-});
+// Create srcset string
+const srcset = images.map(img => `${img.src} ${img.width}w`).join(', ');
+
+// Use the largest image as fallback
+const fallbackImage = images[images.length - 1];
 ---
 
 <div class="image-container" style={`aspect-ratio: ${aspectRatio}`}>
   <picture>
-    <source media="(max-width: 640px)" srcset={mobileImg.src} />
-    <source media="(max-width: 1024px)" srcset={tabletImg.src} />
-    <source media="(min-width: 1025px)" srcset={desktopImg.src} />
+    <source 
+      type="image/webp" 
+      srcset={srcset}
+      sizes={sizes}
+    />
     <img
-      src={desktopImg.src}
+      src={fallbackImage.src}
       alt={alt}
-      width={desktopImg.attributes.width}
-      height={desktopImg.attributes.height}
+      width={fallbackImage.attributes.width}
+      height={fallbackImage.attributes.height}
+      srcset={srcset}
+      sizes={sizes}
       loading={priority ? 'eager' : 'lazy'}
       decoding={priority ? 'sync' : 'async'}
       fetchpriority={priority ? 'high' : 'auto'}
@@ -107,4 +116,4 @@ const desktopImg = await getImage({
     height: 100vh;
     max-height: 80vh;
   }
-</style>
+</style> 
