@@ -8,11 +8,93 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  # Job to detect changes in different parts of the monorepo
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packages-changed: ${{ steps.changes.outputs.packages }}
+      caleb-changed: ${{ steps.changes.outputs.caleb }}
+      micah-changed: ${{ steps.changes.outputs.micah }}
+      molly-changed: ${{ steps.changes.outputs.molly }}
+      webhook-changed: ${{ steps.changes.outputs.webhook }}
+      global-changed: ${{ steps.changes.outputs.global }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Detect changes in different directories
+        id: changes
+        run: |
+          # Get the list of changed files
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo ""
+          
+          # Check for changes in each directory
+          if echo "$CHANGED_FILES" | grep -q '^packages/'; then
+            echo "packages=true" >> $GITHUB_OUTPUT
+            echo "📦 Changes detected in packages/ directory"
+          else
+            echo "packages=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q '^apps/caleb/'; then
+            echo "caleb=true" >> $GITHUB_OUTPUT
+            echo "🏗️ Changes detected in apps/caleb/ directory"
+          else
+            echo "caleb=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q '^apps/micah-ferguson/'; then
+            echo "micah=true" >> $GITHUB_OUTPUT
+            echo "🏗️ Changes detected in apps/micah-ferguson/ directory"
+          else
+            echo "micah=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q '^apps/mollyferguson\.info/'; then
+            echo "molly=true" >> $GITHUB_OUTPUT
+            echo "🏗️ Changes detected in apps/mollyferguson.info/ directory"
+          else
+            echo "molly=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q '^apps/webhook-dispatcher/'; then
+            echo "webhook=true" >> $GITHUB_OUTPUT
+            echo "🏗️ Changes detected in apps/webhook-dispatcher/ directory"
+          else
+            echo "webhook=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for global changes (root level files that affect all apps)
+          if echo "$CHANGED_FILES" | grep -qE '^(package\.json|package-lock\.json|tsconfig\.base\.json)'; then
+            echo "global=true" >> $GITHUB_OUTPUT
+            echo "🌍 Changes detected in global files"
+          else
+            echo "global=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Conditional lint and check jobs
+  lint-and-check:
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.packages-changed == 'true' ||
+      needs.detect-changes.outputs.caleb-changed == 'true' ||
+      needs.detect-changes.outputs.micah-changed == 'true' ||
+      needs.detect-changes.outputs.molly-changed == 'true' ||
+      needs.detect-changes.outputs.webhook-changed == 'true' ||
+      needs.detect-changes.outputs.global-changed == 'true'
     runs-on: ubuntu-latest
     
     env:
-      ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
       NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
     steps:
@@ -34,7 +116,39 @@ jobs:
     - name: Run Astro check
       run: npm run astro:check
 
+  # Build packages when packages or global files change
+  build-packages:
+    needs: [detect-changes, lint-and-check]
+    if: |
+      needs.detect-changes.outputs.packages-changed == 'true' ||
+      needs.detect-changes.outputs.global-changed == 'true'
+    runs-on: ubuntu-latest
+    
+    env:
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build packages
+      run: npm run build:utils
+
+  # Build Caleb app when caleb or global files change
   build-caleb:
+    needs: [detect-changes, lint-and-check]
+    if: |
+      needs.detect-changes.outputs.caleb-changed == 'true' ||
+      needs.detect-changes.outputs.global-changed == 'true'
     runs-on: ubuntu-latest
     
     env:
@@ -57,14 +171,109 @@ jobs:
     - name: Build caleb app
       run: npm run build:caleb
 
+  # Build Micah app when micah or global files change
+  build-micah:
+    needs: [detect-changes, lint-and-check]
+    if: |
+      needs.detect-changes.outputs.micah-changed == 'true' ||
+      needs.detect-changes.outputs.global-changed == 'true'
+    runs-on: ubuntu-latest
+    
+    env:
+      ASTRO_HYGRAPH_ENDPOINT: https://us-west-2.cdn.hygraph.com/content/cm4ah46tx01ol07lnfafy43gg/master
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build micah app
+      run: npm run build:micah
+
+  # Build Molly app when molly or global files change
+  build-molly:
+    needs: [detect-changes, lint-and-check]
+    if: |
+      needs.detect-changes.outputs.molly-changed == 'true' ||
+      needs.detect-changes.outputs.global-changed == 'true'
+    runs-on: ubuntu-latest
+    
+    env:
+      ASTRO_HYGRAPH_ENDPOINT: https://us-east-1-shared-usea1-02.cdn.hygraph.com/content/cm048oo3l01gz07wf7rrq84lg/master
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build molly app
+      run: npm run build:molly
+
+  # Build and deploy webhook when webhook or global files change
+  build-and-deploy-webhook:
+    needs: [detect-changes, lint-and-check]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && (needs.detect-changes.outputs.webhook-changed == 'true' || needs.detect-changes.outputs.global-changed == 'true')
+    runs-on: ubuntu-latest
+    environment: production
+    
+    env:
+      NPM_GH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build webhook-dispatcher
+      run: npm run build:webhook
+
+    - name: Deploy webhook-dispatcher
+      run: npm run deploy:webhook
+
+    - name: Report deployment status
+      run: |
+        echo "🚀 Deployment of webhook-dispatcher completed successfully!"
+        echo "Triggered by: ${{ github.event_name }}"
+
   publish:
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build-packages, detect-changes]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.packages-changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
+      - name: Log publish trigger reason
+        run: |
+          echo "📦 Publishing package due to changes in packages/ directory"
+      
       - uses: actions/checkout@v3
       
       - name: Use Node.js
@@ -106,36 +315,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
-  deploy-webhook:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
-    
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version-file: '.nvmrc'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build webhook-dispatcher
-      run: npm run build:webhook
-
-    - name: Deploy webhook-dispatcher
-      run: npm run deploy:webhook
-
-    - name: Report deployment status
-      run: |
-        echo "🚀 Deployment of webhook-dispatcher completed successfully!"
-        echo "Triggered by: ${{ github.event_name }}"
-
+      - name: Report publish status
+        run: |
+          if [ "${{ steps.version-check.outputs.should-publish }}" == "true" ]; then
+            echo "🚀 Package @sferg989/astro-utils published successfully!"
+            echo "Version: ${{ steps.version-check.outputs.current-version }}"
+            echo "Trigger: ${{ github.event_name }}"
+          else
+            echo "📦 Package @sferg989/astro-utils version ${{ steps.version-check.outputs.current-version }} already published - skipped"
+          fi

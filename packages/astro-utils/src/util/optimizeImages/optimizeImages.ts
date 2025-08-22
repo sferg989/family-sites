@@ -294,7 +294,6 @@ class PictureElementBuilder {
 class ImageElementProcessor {
   private readonly processor = new ImageProcessor();
   private readonly placeholderGenerator = new PlaceholderGenerator();
-  private readonly pictureBuilder = new PictureElementBuilder();
 
   async processImageElement(context: ImageProcessingContext, config: ImageOptimizationConfig): Promise<ProcessedImageData> {
     const formats = config.formats.filter(format => 
