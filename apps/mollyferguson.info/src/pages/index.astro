@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { GraphQLClient } from '@sferg989/astro-utils';
 import type { Page, Pages } from '@sferg989/astro-utils';
-import { optimizeImages } from '@sferg989/astro-utils';
+import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
 import Picture from '../components/Picture.astro';
 const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
 const client = GraphQLClient.Instance(endpoint);
