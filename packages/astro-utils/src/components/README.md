@@ -63,6 +63,25 @@ The new implementation:
 
 An optimized responsive image component that generates multiple sizes and formats for optimal performance.
 
+## Image Optimization Utility
+
+The `optimizeImages` function is available as a separate import to avoid bundling jsdom in projects that don't need it:
+
+```typescript
+// Import from separate entry point
+import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
+
+// Use for server-side HTML processing
+const optimizedHtml = await optimizeImages(html, {
+  enableWebP: true,
+  enableAvif: true,
+  maxWidth: 1200,
+  quality: 80
+});
+```
+
+This keeps the main package lightweight while providing powerful image optimization when needed.
+
 ### Features
 
 - **Smart Image Sizing**: Generates optimal image sizes based on display requirements

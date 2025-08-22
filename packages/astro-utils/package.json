@@ -1,10 +1,11 @@
 {
   "name": "@sferg989/astro-utils",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "type": "module",
   "private": false,
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./image-optimization": "./image-optimization.ts"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
@@ -15,7 +16,8 @@
   },
   "files": [
     "src",
-    "index.ts"
+    "index.ts",
+    "image-optimization.ts"
   ],
   "keywords": [
     "astro-component"
