@@ -12,5 +12,18 @@ export { GET_ALL_PAGES, GET_PAGE_BY_SLUG } from './src/util/pageQueries/pageQuer
 export { PageService } from './src/util/pageService/pageService';
 export { RestService } from './src/util/restService/restService';
 
+// Site config utilities
+export { GET_SITE_CONFIG } from './src/util/siteConfigQueries/siteConfigQueries';
+export { SiteConfigService } from './src/util/siteConfigService/siteConfigService';
+export { getSocialIcon, SOCIAL_ICONS } from './src/util/socialIcons/socialIcons';
+
 // Export types
 export type { Page, Pages, DigitalAsset } from './src/util/types/page';
+export type {
+  SiteConfig,
+  SiteIdentifier,
+  SocialPlatform,
+  NavigationItem,
+  SocialLink
+} from './src/util/types/siteConfig';
+export type { SocialIconData } from './src/util/socialIcons/socialIcons';

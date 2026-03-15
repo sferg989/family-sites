@@ -1,19 +1,47 @@
 ---
 /* eslint-disable max-len */
 import HeaderLink from './HeaderLink.astro';
-import SocialLinks from './SocialLinks.astro';
+import { SiteConfigService, getSocialIcon } from '@sferg989/astro-utils';
+import type { SiteConfig } from '@sferg989/astro-utils';
 import { SITE_TITLE } from '../consts';
+
+// Initialize and fetch site config from CMS
+SiteConfigService.initialize(import.meta.env.ASTRO_HYGRAPH_ENDPOINT);
+const siteConfig: SiteConfig | null = await SiteConfigService.getSiteConfig('MOLLY');
+
+// Fallback values if CMS is unavailable
+const siteTitle = siteConfig?.siteTitle ?? SITE_TITLE;
+const navItems = siteConfig?.navigationItems ?? [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'About', href: '/about' }
+];
+const socialLinks = siteConfig?.socialLinks ?? [];
 ---
 
 <header>
   <nav>
-    <h2><a href="/" class="site-title">{SITE_TITLE}</a></h2>
+    <h2><a href="/" class="site-title">{siteTitle}</a></h2>
     <div class="internal-links">
-      <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/blog">Blog</HeaderLink>
-      <HeaderLink href="/about">About</HeaderLink>
+      {navItems.map(item => (
+        <HeaderLink href={item.href}>{item.label}</HeaderLink>
+      ))}
     </div>
-    <SocialLinks />
+    {socialLinks.length > 0 && (
+      <div class="social-links">
+        {socialLinks.map(({ url, label, platform }) => {
+          const icon = getSocialIcon(platform);
+          return icon && (
+            <a href={url} target="_blank" rel="noopener" class={platform.toLowerCase()}>
+              <span class="sr-only">{label || `Visit ${platform}`}</span>
+              <svg viewBox={icon.viewBox} aria-hidden="true" width="32" height="32">
+                <fragment set:html={icon.path} />
+              </svg>
+            </a>
+          );
+        })}
+      </div>
+    )}
   </nav>
 </header>
 <style>
@@ -74,5 +102,68 @@ import { SITE_TITLE } from '../consts';
 
   .internal-links a:hover::before {
     opacity: 1;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    color: var(--text-color);
+    transition: all 0.2s ease;
+  }
+
+  .social-links a:hover {
+    transform: scale(1.1) rotate(10deg);
+  }
+
+  .social-links a.twitter:hover {
+    background: #1DA1F2;
+    color: white;
+  }
+
+  .social-links a.instagram:hover {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: white;
+  }
+
+  .social-links a.linkedin:hover {
+    background: #0077B5;
+    color: white;
+  }
+
+  .social-links a.youtube:hover {
+    background: #FF0000;
+    color: white;
+  }
+
+  .social-links a.tiktok:hover {
+    background: #000;
+    color: white;
+  }
+
+  .social-links a.mastodon:hover {
+    background: #6364FF;
+    color: white;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 </style>
