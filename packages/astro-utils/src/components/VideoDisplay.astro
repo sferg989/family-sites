@@ -1,5 +1,6 @@
 ---
 import type { DigitalAsset } from '../util/types/page';
+import Picture from './Picture.astro';
 
 interface Props {
   videos: DigitalAsset[];
@@ -34,12 +35,13 @@ const isVideoType = (mimeType: string): boolean => {
               </video>
             </div>
           ) : (
-            <div class="image-container">
-              <img
+            <div class="image-wrapper">
+              <Picture
                 src={item.url}
-                alt={`${title} image ${index + 1}`}
-                loading="lazy"
-                class="image-element"
+                alt={item.alt || `${title} image ${index + 1}`}
+                aspectRatio={16/9}
+                maxWidth={640}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
           )}
@@ -100,19 +102,20 @@ const isVideoType = (mimeType: string): boolean => {
     background: #000;
   }
 
-  .image-container {
+  .image-wrapper {
     width: 100%;
     height: 100%;
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .image-element {
-    width: 100%;
+  .image-wrapper :global(.image-container) {
     height: 100%;
+  }
+
+  .image-wrapper :global(.image-container img) {
     object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   /* Performance optimizations */
@@ -122,8 +125,7 @@ const isVideoType = (mimeType: string): boolean => {
 
   /* Accessibility improvements */
   @media (prefers-reduced-motion: reduce) {
-    .video-element,
-    .image-element {
+    .video-element {
       transition: none;
     }
   }
