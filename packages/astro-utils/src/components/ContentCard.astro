@@ -1,5 +1,6 @@
 ---
 import type { DigitalAsset } from '../util/types/page';
+import Picture from './Picture.astro';
 
 interface Props {
   title: string;
@@ -29,10 +30,12 @@ const formatDate = (dateString: string): string => {
   <a href={href} class="card-link">
     {heroImage && (
       <div class="card-image">
-        <img
+        <Picture
           src={heroImage.url}
-          alt={title}
-          loading="lazy"
+          alt={heroImage.alt || title}
+          aspectRatio={16/9}
+          maxWidth={640}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
     )}
@@ -72,14 +75,16 @@ const formatDate = (dateString: string): string => {
     overflow: hidden;
   }
 
-  .card-image img {
-    width: 100%;
+  .card-image :global(.image-container) {
     height: 100%;
+  }
+
+  .card-image :global(.image-container img) {
     object-fit: cover;
     transition: transform 0.3s ease;
   }
 
-  .content-card:hover .card-image img {
+  .content-card:hover .card-image :global(.image-container img) {
     transform: scale(1.05);
   }
 
@@ -125,7 +130,7 @@ const formatDate = (dateString: string): string => {
 
   @media (prefers-reduced-motion: reduce) {
     .content-card,
-    .card-image img {
+    .card-image :global(.image-container img) {
       transition: none;
     }
   }
