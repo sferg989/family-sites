@@ -374,7 +374,7 @@ class ImageOptimizer {
 
   async optimizeImages(html: string, options: Partial<ImageOptimizationConfig> = {}): Promise<string> {
     const config: ImageOptimizationConfig = { ...DEFAULT_CONFIG, ...options };
-    
+
     const dom = new JSDOM(html);
     const document = dom.window.document;
     const images = Array.from(document.getElementsByTagName('img'));
@@ -384,14 +384,15 @@ class ImageOptimizer {
     }
 
     const contexts = this.createImageContexts(images);
-    
+
     if (config.parallelProcessing) {
       await this.processImagesInParallel(contexts, config, document);
     } else {
       await this.processImagesSequentially(contexts, config, document);
     }
 
-    return dom.serialize();
+    // Return only the body's innerHTML to avoid wrapping content in <html><head><body> tags
+    return document.body.innerHTML;
   }
 
   private createImageContexts(images: Element[]): ImageProcessingContext[] {
