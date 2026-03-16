@@ -4,7 +4,6 @@ import { SoccerService } from '../../services/soccerService';
 import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
 import { VideoDisplay, formatGameDate } from '@sferg989/astro-utils';
 import type { SoccerGame } from '@sferg989/astro-utils';
-import { SITE_TITLE } from '../../consts';
 
 export async function getStaticPaths() {
   const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
@@ -24,11 +23,10 @@ if (fullGame?.body?.html) {
   fullGame.body.html = await optimizeImages(fullGame.body.html);
 }
 
-const pageTitle = `${fullGame.title} | ${SITE_TITLE}`;
 ---
 
 <Layout
-  title={pageTitle}
+  title={fullGame.title}
   description={fullGame.metaDescription || fullGame.excerpt}
   heroImage={fullGame.heroImage}
   publishedAt={fullGame.gameDate}

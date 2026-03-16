@@ -10,7 +10,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: ${new URL('sitemap.xml', site).toString()}
+Sitemap: ${new URL('sitemap-index.xml', site).toString()}
 `.trim();
 
   return new Response(robotsTxt, {

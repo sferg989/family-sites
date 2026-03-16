@@ -33,6 +33,9 @@ const updatedDate = updatedAt ? new Date(updatedAt) : null;
       description={description || title}
       image={heroImage?.url}
       keywords={keywords}
+      publishedAt={publishedAt}
+      updatedAt={updatedAt}
+      type="article"
     />
     <slot name="head" />
   </head>

@@ -46,21 +46,8 @@ const { pages }: Pages = await client.request(`
   }
 `);
 
-const pageTitle = page ? `${page.title} | ${SITE_TITLE}` : SITE_TITLE;
+const pageTitle = page ? page.title : SITE_TITLE;
 const pageDescription = page?.metaDescription || SITE_DESCRIPTION;
-const canonicalURL = new URL(Astro.url.pathname, 'https://mollyferguson.info');
-
-// Create structured data for SEO
-const structuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: pageTitle,
-  description: pageDescription,
-  url: canonicalURL.toString(),
-  datePublished: page?.publishedAt,
-  dateModified: page?.updatedAt,
-  image: page?.heroImage?.url,
-};
 ---
 
 <!doctype html>
@@ -71,9 +58,11 @@ const structuredData = {
       description={pageDescription}
       image={page?.heroImage?.url}
       keywords={page?.keywords}
+      publishedAt={page?.publishedAt}
+      updatedAt={page?.updatedAt}
+      type="website"
+      includeOrganization={true}
     />
-    <link rel='canonical' href={canonicalURL} />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
     <Header />

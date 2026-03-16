@@ -13,6 +13,7 @@ interface Props {
   publishedAt?: string
   updatedAt?: string
   type?: 'website' | 'article'
+  includeOrganization?: boolean
 }
 
 const {
@@ -22,7 +23,8 @@ const {
   keywords,
   publishedAt,
   updatedAt,
-  type = 'website'
+  type = 'website',
+  includeOrganization = false
 } = Astro.props;
 
 const pageTitle = `${title} | ${SITE_TITLE}`;
@@ -74,6 +76,8 @@ const pageTitle = `${title} | ${SITE_TITLE}`;
   {...(publishedAt && { publishedAt })}
   {...(updatedAt && { updatedAt })}
   type={type}
+  includeOrganization={includeOrganization}
+  organizationLogo="/favicon.svg"
 />
 
 <!-- Site-specific favicon and theme -->

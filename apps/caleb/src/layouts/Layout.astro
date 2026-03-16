@@ -15,9 +15,10 @@ interface Props {
   } | undefined;
   type?: 'website' | 'article' | undefined;
   keywords?: string | undefined;
+  includeOrganization?: boolean | undefined;
 }
 
-const { title, publishedAt, updatedAt, description, heroImage, type = 'website', keywords } = Astro.props;
+const { title, publishedAt, updatedAt, description, heroImage, type = 'website', keywords, includeOrganization = false } = Astro.props;
 
 const publishedDate = publishedAt ? new Date(publishedAt) : null;
 const updatedDate = updatedAt ? new Date(updatedAt) : null;
@@ -25,14 +26,15 @@ const updatedDate = updatedAt ? new Date(updatedAt) : null;
 
 <html lang="en">
   <head>
-    <BaseHead 
-      title={title} 
-      description={description} 
+    <BaseHead
+      title={title}
+      description={description}
       {...(heroImage?.url && { image: heroImage.url })}
       {...(publishedAt && { publishedAt })}
       {...(updatedAt && { updatedAt })}
       {...(keywords && { keywords })}
       type={type}
+      includeOrganization={includeOrganization}
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>

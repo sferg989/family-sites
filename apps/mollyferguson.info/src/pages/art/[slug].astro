@@ -4,7 +4,6 @@ import { ArtService } from '../../services/artService';
 import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
 import { VideoDisplay } from '@sferg989/astro-utils';
 import type { ArtPiece } from '@sferg989/astro-utils';
-import { SITE_TITLE } from '../../consts';
 
 export async function getStaticPaths() {
   const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
@@ -24,11 +23,10 @@ if (fullPiece?.body?.html) {
   fullPiece.body.html = await optimizeImages(fullPiece.body.html);
 }
 
-const pageTitle = `${fullPiece.title} | ${SITE_TITLE}`;
 ---
 
 <Layout
-  title={pageTitle}
+  title={fullPiece.title}
   description={fullPiece.metaDescription || fullPiece.excerpt}
   heroImage={fullPiece.heroImage}
   publishedAt={fullPiece.publishedAt}

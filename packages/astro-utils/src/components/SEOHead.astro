@@ -1,8 +1,24 @@
 ---
+interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+interface SocialLinks {
+  twitter?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  youtube?: string;
+  github?: string;
+}
+
 interface Props {
   title: string;
   description: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   keywords?: string;
   canonicalPath?: string;
   author?: string;
@@ -12,12 +28,18 @@ interface Props {
   updatedAt?: string;
   type?: 'website' | 'article';
   locale?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  includeOrganization?: boolean;
+  organizationLogo?: string;
+  socialLinks?: SocialLinks;
 }
 
 const {
   title,
   description,
   image,
+  imageWidth = 1200,
+  imageHeight = 630,
   keywords,
   canonicalPath = Astro.url.pathname,
   author = '',
@@ -26,14 +48,18 @@ const {
   publishedAt,
   updatedAt,
   type = 'website',
-  locale = 'en'
+  locale = 'en',
+  breadcrumbs,
+  includeOrganization = false,
+  organizationLogo,
+  socialLinks
 } = Astro.props;
 
 const canonicalURL = new URL(canonicalPath, siteUrl);
 const fullImageUrl = image ? new URL(image, siteUrl).toString() : undefined;
 
-// Generate JSON-LD structured data
-const jsonLd = {
+// Generate main JSON-LD structured data
+const mainJsonLd = {
   '@context': 'https://schema.org',
   '@type': type === 'article' ? 'Article' : 'WebSite',
   name: title,
@@ -51,6 +77,29 @@ const jsonLd = {
     }
   })
 };
+
+// Generate BreadcrumbList JSON-LD if breadcrumbs provided
+const breadcrumbJsonLd = breadcrumbs && breadcrumbs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbs.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: new URL(item.url, siteUrl).toString()
+  }))
+} : null;
+
+// Generate Organization JSON-LD if requested
+const sameAs = socialLinks ? Object.values(socialLinks).filter(Boolean) : [];
+const organizationJsonLd = includeOrganization ? {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: siteName,
+  url: siteUrl,
+  ...(organizationLogo && { logo: new URL(organizationLogo, siteUrl).toString() }),
+  ...(sameAs.length > 0 && { sameAs })
+} : null;
 ---
 
 <!-- Global Metadata -->
@@ -76,6 +125,8 @@ const jsonLd = {
 <meta property="og:site_name" content={siteName} />
 <meta property="og:locale" content={locale} />
 {fullImageUrl && <meta property="og:image" content={fullImageUrl} />}
+{fullImageUrl && <meta property="og:image:width" content={String(imageWidth)} />}
+{fullImageUrl && <meta property="og:image:height" content={String(imageHeight)} />}
 {fullImageUrl && <meta property="og:image:alt" content={title} />}
 
 <!-- Twitter -->
@@ -86,11 +137,13 @@ const jsonLd = {
 {fullImageUrl && <meta property="twitter:image" content={fullImageUrl} />}
 
 <!-- JSON-LD Structured Data -->
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+<script type="application/ld+json" set:html={JSON.stringify(mainJsonLd)} />
+{breadcrumbJsonLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />}
+{organizationJsonLd && <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />}
 
 <!-- Performance Optimizations -->
 <meta http-equiv="x-dns-prefetch-control" content="on" />
 
 <!-- Preconnect to critical domains -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" /> 
+<link rel="dns-prefetch" href="https://fonts.gstatic.com" />

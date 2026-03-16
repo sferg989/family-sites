@@ -23,6 +23,7 @@ const [{ page }, { pages }] = await Promise.all([
   updatedAt={page.updatedAt}
   keywords={page.keywords}
   type="website"
+  includeOrganization={true}
 >
   <PageHero title={page.title} heroImage={page.heroImage} />
   <PageBody content={page.body} highlights={page.highlights} />
