@@ -2,19 +2,23 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import type { Page } from '@sferg989/astro-utils';
+import type { DigitalAsset } from '@sferg989/astro-utils';
 
-type Props = Page & {
-  structuredData?: Record<string, any>;
-  canonicalURL?: URL;
-};
+interface Props {
+  title: string;
+  publishedAt?: string | undefined;
+  updatedAt?: string | undefined;
+  heroImage?: DigitalAsset | undefined;
+  description?: string | undefined;
+  keywords?: string | undefined;
+}
 
 const {
   title,
   publishedAt,
   updatedAt,
   heroImage,
-  metaDescription,
+  description,
   keywords
 } = Astro.props;
 
@@ -26,7 +30,7 @@ const updatedDate = updatedAt ? new Date(updatedAt) : null;
   <head>
     <BaseHead
       title={title}
-      description={metaDescription || title}
+      description={description || title}
       image={heroImage?.url}
       keywords={keywords}
     />

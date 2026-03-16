@@ -1,0 +1,84 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageBody from '@components/pageBody.astro';
+import PageHero from '@components/pageHero.astro';
+import { BlogService } from '../../services/blogService';
+import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
+import type { BlogPost } from '@sferg989/astro-utils';
+
+export async function getStaticPaths() {
+  const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+  BlogService.initialize(endpoint);
+  const { blogPosts } = await BlogService.getAllPosts();
+
+  return blogPosts.map((post: BlogPost) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { blogPost: fullPost } = await BlogService.getPostBySlug(post.slug);
+
+if (fullPost?.body?.html) {
+  fullPost.body.html = await optimizeImages(fullPost.body.html);
+}
+
+const publishDate = fullPost.publishedAt || fullPost.createdAt;
+---
+
+<Layout
+  title={fullPost.title}
+  description={fullPost.metaDescription ?? fullPost.excerpt ?? ''}
+  heroImage={fullPost.heroImage}
+  publishedAt={publishDate ?? ''}
+  updatedAt={fullPost.updatedAt ?? ''}
+  keywords={fullPost.keywords ?? ''}
+  type="article"
+>
+  <PageHero title={fullPost.title} heroImage={fullPost.heroImage ?? undefined} />
+
+  {(fullPost.author || (fullPost.tags && fullPost.tags.length > 0)) && (
+    <div class="post-meta">
+      {fullPost.author && <span class="author">By {fullPost.author}</span>}
+      {fullPost.tags && fullPost.tags.length > 0 && (
+        <div class="tags">
+          {fullPost.tags.map(tag => <span class="tag">{tag}</span>)}
+        </div>
+      )}
+    </div>
+  )}
+
+  <PageBody content={fullPost.body} highlights={fullPost.highlights ?? []} />
+</Layout>
+
+<style>
+  .post-meta {
+    max-width: 720px;
+    margin: 0 auto 1rem;
+    padding: 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-muted, #888);
+    font-size: 0.9rem;
+  }
+
+  .author {
+    font-weight: 500;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    background: var(--tag-bg, rgba(255, 255, 255, 0.1));
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+</style>

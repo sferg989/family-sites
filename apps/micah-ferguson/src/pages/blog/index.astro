@@ -1,0 +1,67 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { ContentListing } from '@sferg989/astro-utils';
+import { BlogService } from '../../services/blogService';
+import type { ContentListItem } from '@sferg989/astro-utils';
+
+const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+BlogService.initialize(endpoint);
+
+const { blogPosts } = await BlogService.getAllPosts();
+
+const items: ContentListItem[] = blogPosts.map(post => ({
+  title: post.title,
+  slug: post.slug,
+  excerpt: post.excerpt,
+  heroImage: post.heroImage,
+  publishedAt: post.publishedAt || post.createdAt,
+  meta: post.author
+}));
+---
+
+<Layout
+  title="Blog"
+  description="Blog posts and articles"
+  type="website"
+>
+  <div class="blog-landing">
+    <header class="page-header">
+      <h1>Blog</h1>
+      <p class="page-description">Thoughts, stories, and updates</p>
+    </header>
+
+    <ContentListing items={items} basePath="/blog" columns={2} />
+  </div>
+</Layout>
+
+<style>
+  .blog-landing {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(104deg,
+      var(--stripe-color-1, #4a90d9) 0%,
+      var(--stripe-color-2, #67b26f) 100%
+    );
+    border-radius: 15px;
+    color: white;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin: 0 0 0.5rem 0;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .page-description {
+    margin: 0;
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+</style>

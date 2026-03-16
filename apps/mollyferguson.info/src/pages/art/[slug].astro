@@ -1,0 +1,228 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { ArtService } from '../../services/artService';
+import { optimizeImages } from '@sferg989/astro-utils/image-optimization';
+import { VideoDisplay } from '@sferg989/astro-utils';
+import type { ArtPiece } from '@sferg989/astro-utils';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+  const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+  ArtService.initialize(endpoint);
+  const { artPieces } = await ArtService.getAllPieces();
+
+  return artPieces.map((piece: ArtPiece) => ({
+    params: { slug: piece.slug },
+    props: { piece },
+  }));
+}
+
+const { piece } = Astro.props;
+const { artPiece: fullPiece } = await ArtService.getPieceBySlug(piece.slug);
+
+if (fullPiece?.body?.html) {
+  fullPiece.body.html = await optimizeImages(fullPiece.body.html);
+}
+
+const pageTitle = `${fullPiece.title} | ${SITE_TITLE}`;
+---
+
+<Layout
+  title={pageTitle}
+  description={fullPiece.metaDescription || fullPiece.excerpt}
+  heroImage={fullPiece.heroImage}
+  publishedAt={fullPiece.publishedAt}
+  updatedAt={fullPiece.updatedAt}
+  keywords={fullPiece.keywords}
+>
+  <div class="art-piece">
+    {fullPiece.heroImage && (
+      <div class="hero-image">
+        <img
+          src={fullPiece.heroImage.url}
+          alt={fullPiece.title}
+          loading="eager"
+        />
+      </div>
+    )}
+
+    <div class="content-container">
+      <header class="piece-header">
+        <h1>{fullPiece.title}</h1>
+        <hr />
+      </header>
+
+      <div class="piece-meta">
+        {fullPiece.artist && (
+          <div class="meta-item">
+            <span class="meta-label">Artist</span>
+            <span class="meta-value">{fullPiece.artist}</span>
+          </div>
+        )}
+        {fullPiece.medium && (
+          <div class="meta-item">
+            <span class="meta-label">Medium</span>
+            <span class="meta-value">{fullPiece.medium}</span>
+          </div>
+        )}
+        {fullPiece.dimensions && (
+          <div class="meta-item">
+            <span class="meta-label">Dimensions</span>
+            <span class="meta-value">{fullPiece.dimensions}</span>
+          </div>
+        )}
+        {fullPiece.year && (
+          <div class="meta-item">
+            <span class="meta-label">Year</span>
+            <span class="meta-value">{fullPiece.year}</span>
+          </div>
+        )}
+      </div>
+
+      {(fullPiece.tags?.length ?? 0) > 0 && (
+        <div class="tags">
+          {fullPiece.tags!.map(tag => <span class="tag">{tag}</span>)}
+        </div>
+      )}
+
+      {fullPiece.body?.html && (
+        <div class="piece-body" set:html={fullPiece.body.html} />
+      )}
+
+      {(fullPiece.galleryImages?.length ?? 0) > 0 && (
+        <VideoDisplay videos={fullPiece.galleryImages ?? []} title="Gallery" gridColumns={2} />
+      )}
+
+      <nav class="back-link">
+        <a href="/art/" class="back-button">
+          &larr; Back to Art Gallery
+        </a>
+      </nav>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .art-piece {
+    margin-bottom: 2rem;
+  }
+
+  .hero-image {
+    width: 100%;
+    max-height: 70vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+  }
+
+  .hero-image img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+
+  .content-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .piece-header {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(104deg,
+      var(--stripe-color-1, #ff6b6b) 0%,
+      var(--stripe-color-2, #4ecdc4) 100%
+    );
+    border-radius: 15px;
+    color: white;
+  }
+
+  .piece-header h1 {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    margin: 0;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .piece-header hr {
+    border: none;
+    height: 4px;
+    background: var(--accent-color, #ffe66d);
+    margin: 1rem 0 0;
+    border-radius: 2px;
+  }
+
+  .piece-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--accent-color, #ffe66d);
+    border-radius: 12px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .meta-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #666);
+  }
+
+  .meta-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color, #333);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tag {
+    background: var(--tag-bg, rgba(0, 0, 0, 0.1));
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--text-color, #333);
+  }
+
+  .piece-body {
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .piece-body :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .back-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-color, #333);
+    text-decoration: none;
+    border: 2px solid var(--accent-color, #ffe66d);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .back-button:hover {
+    background: var(--accent-color, #ffe66d);
+  }
+</style>

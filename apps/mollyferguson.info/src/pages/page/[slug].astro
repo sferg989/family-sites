@@ -38,16 +38,16 @@ const structuredData = {
   dateModified: fullPage?.updatedAt,
   image: fullPage?.heroImage?.url,
 };
-
-// Prepare metadata for Layout
-const enhancedPage = {
-  ...fullPage,
-  structuredData,
-  canonicalURL
-};
 ---
 
-<Layout {...enhancedPage}>
+<Layout
+  title={pageTitle}
+  description={fullPage?.metaDescription}
+  heroImage={fullPage?.heroImage}
+  publishedAt={fullPage?.publishedAt}
+  updatedAt={fullPage?.updatedAt}
+  keywords={fullPage?.keywords}
+>
   <script type="application/ld+json" set:html={JSON.stringify(structuredData)} slot="head" />
   <link rel="canonical" href={canonicalURL} slot="head" />
   <PageContent page={fullPage} />

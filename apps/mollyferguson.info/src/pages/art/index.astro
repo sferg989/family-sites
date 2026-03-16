@@ -1,0 +1,73 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { ContentListing } from '@sferg989/astro-utils';
+import { ArtService } from '../../services/artService';
+import type { ContentListItem } from '@sferg989/astro-utils';
+import { SITE_TITLE } from '../../consts';
+
+const endpoint = import.meta.env.ASTRO_HYGRAPH_ENDPOINT;
+ArtService.initialize(endpoint);
+
+const { artPieces } = await ArtService.getAllPieces();
+
+const formatArtMeta = (piece: typeof artPieces[0]): string => {
+  const parts: string[] = [];
+  if (piece.medium) parts.push(piece.medium);
+  if (piece.year) parts.push(String(piece.year));
+  return parts.join(' \u2022 ');
+};
+
+const items: ContentListItem[] = artPieces.map(piece => ({
+  title: piece.title,
+  slug: piece.slug,
+  excerpt: piece.excerpt,
+  heroImage: piece.heroImage,
+  publishedAt: piece.publishedAt || piece.createdAt,
+  meta: formatArtMeta(piece)
+}));
+
+const pageTitle = `Art | ${SITE_TITLE}`;
+---
+
+<Layout title={pageTitle} description="Art gallery and portfolio">
+  <div class="art-landing">
+    <header class="page-header">
+      <h1>Art</h1>
+      <p class="page-description">Gallery and portfolio</p>
+    </header>
+
+    <ContentListing items={items} basePath="/art" columns={3} />
+  </div>
+</Layout>
+
+<style>
+  .art-landing {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(104deg,
+      var(--stripe-color-1, #ff6b6b) 0%,
+      var(--stripe-color-2, #4ecdc4) 100%
+    );
+    border-radius: 15px;
+    color: white;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin: 0 0 0.5rem 0;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .page-description {
+    margin: 0;
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+</style>

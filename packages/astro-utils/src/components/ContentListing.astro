@@ -1,0 +1,73 @@
+---
+import ContentCard from './ContentCard.astro';
+import type { ContentListItem } from '../util/types/content';
+
+interface Props {
+  items: ContentListItem[];
+  basePath: string;
+  title?: string;
+  columns?: 2 | 3 | 4;
+}
+
+const { items, basePath, title, columns = 3 } = Astro.props;
+---
+
+<section class="content-listing" style={`--columns: ${columns}`}>
+  {title && <h2 class="listing-title">{title}</h2>}
+
+  {items.length > 0 ? (
+    <div class="listing-grid">
+      {items.map((item) => (
+        <ContentCard
+          title={item.title}
+          slug={item.slug}
+          excerpt={item.excerpt}
+          heroImage={item.heroImage}
+          publishedAt={item.publishedAt}
+          basePath={basePath}
+          meta={item.meta}
+        />
+      ))}
+    </div>
+  ) : (
+    <p class="no-content">No content available yet.</p>
+  )}
+</section>
+
+<style>
+  .content-listing {
+    padding: 2rem 0;
+  }
+
+  .listing-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 2rem 0;
+    color: var(--heading-color, #1a1a1a);
+  }
+
+  .listing-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .listing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .listing-grid {
+      grid-template-columns: repeat(var(--columns, 3), 1fr);
+    }
+  }
+
+  .no-content {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-color, #666);
+    font-size: 1.1rem;
+  }
+</style>

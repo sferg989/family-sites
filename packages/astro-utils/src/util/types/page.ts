@@ -1,7 +1,7 @@
 export type DigitalAsset = {
   id: string
   url: string
-  alt: string
+  alt?: string
   mimeType: 'video/mp4' | 'image/jpeg' | 'image/png'
 }
 

@@ -7,14 +7,14 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title: string;
   description: string;
-  publishedAt?: string;
-  updatedAt?: string;
+  publishedAt?: string | undefined;
+  updatedAt?: string | undefined;
   heroImage?: {
     url: string;
     mimeType: string;
-  };
-  type?: 'website' | 'article';
-  keywords?: string;
+  } | undefined;
+  type?: 'website' | 'article' | undefined;
+  keywords?: string | undefined;
 }
 
 const { title, publishedAt, updatedAt, description, heroImage, type = 'website', keywords } = Astro.props;
